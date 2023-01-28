@@ -1,10 +1,9 @@
 ---
 title: "Hello blogdown!"
-subtitle: "Testing"
+subtitle: ''
+author: Hana Lê 
 excerpt: "Good stuff"
 date: 2023-01-28
-author: "Hana Le"
-draft: false
 # layout options: single, single-sidebar
 layout: single
 categories:
@@ -12,7 +11,7 @@ categories:
 - Blogdown
 ---
 
-
+I just wanted to say blogdown is quite cool!
 
 
 
