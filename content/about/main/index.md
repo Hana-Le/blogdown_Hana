@@ -6,7 +6,7 @@ use_featured: false # if false, use most recent by date
 number_categories: 3 # set to zero to exclude
 show_intro: true
 intro: |
-  I’m a recent graduate in Applied Statistics with a passion for data analytics. My background includes six years of experience in project management. I am now seeking opportunities to apply and further develop my skills in statistical modeling, machine learning, and data visualization. On this site, I share my projects and insights on the latest trends in data science. I am open to opportunities in industry, and I would love to work with a team that values accuracy and efficiency.
+  I’m a recent graduate in Applied Statistics with a passion for data analytics. My background includes six years of experience in project management. I am now seeking opportunities to apply and further develop my skills in statistical modeling, data visualization and deep learning. On this site, I share my learning journey through mini projects . I am open to opportunities in industry, and I would love to work with a team that values accuracy and efficiency.
 show_outro: true
 outro: |
   <i class="fas fa-glass-cheers pr2"></i>!

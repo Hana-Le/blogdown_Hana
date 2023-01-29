@@ -10,7 +10,7 @@ link_list:
  
 - name: Data visualization
 
-- name: Machine learning
+- name: Deep learning
 
 ---
 
