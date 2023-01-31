@@ -36,7 +36,7 @@ I was familiar with Rmarkdown and Bookdown but only recently heard about Blogdow
 
 #### Step 3: Create a Website
 
-1. nstall the Blogdown package and a Hugo theme. Example:
+1. Install the Blogdown package and a Hugo theme. Example:
 
 ```r
 install.packages("blogdown")
