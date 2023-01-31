@@ -15,7 +15,7 @@ categories:
 
 ### Creating a Personal Website with R Blogdown and Hugo-Apero
 
-I have used Rmarkdown and Bookdown before but have never heard about blogdown until recently. I heard someone mention using blogdown to create a personal website and I was intrigued.  I was surprised to find that with a few hours of work, I was able to customize my site using this package. In this post, I'll share my experience and guide you through the process of using Blogdown to create your own website.
+I was familiar with Rmarkdown and Bookdown but only recently heard about blogdown. I was intrigued when someone mentioned using it to create a personal website, and I was pleasantly surprised to find that with a few hours of work, I was able to customize my site using the package. In this post, I will share my experience and guide you through using Blogdown to create your own website.
 
 #### Prerequisites:
 
@@ -43,10 +43,10 @@ install.packages("blogdown")
 blogdown::install_hugo()
 library(blogdown)
 new_site(theme = "hugo-apero/hugo/apero") 
-# or "wowchemy/starter-academic 
+# or "wowchemy/starter-academic"
 
 ```
- I initially started with the hugo-academic theme  but then found the hugo-apero theme fit me better.
+ I initially started with the hugo-academic theme but then found the hugo-apero theme fits me better.
  
  2. Preview the website locally using the command `blogdown::serve_site()` or the RStudio Addins menu.
 
