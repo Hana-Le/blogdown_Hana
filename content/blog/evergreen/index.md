@@ -22,7 +22,7 @@ I was familiar with Rmarkdown and Bookdown but only recently heard about Blogdow
 - Basic knowledge of R, RStudio and Rmarkdown
 - Familiarity with GitHub
 
-#### Step 1:Create a Repository on GitHub
+#### Step 1: Create a Repository on GitHub
 
 1. Log in to your GitHub account and create a new repo.
 2. Go to the repo's main page, click the green Code button and copy either the SSH or HTTPS link.
@@ -42,7 +42,7 @@ I was familiar with Rmarkdown and Bookdown but only recently heard about Blogdow
 install.packages("blogdown")
 blogdown::install_hugo()
 library(blogdown)
-new_site(theme = "hugo-apero/hugo/apero") 
+new_site(theme = "hugo-apero/hugo-apero") 
 # or "wowchemy/starter-academic"
 
 ```
