@@ -74,8 +74,6 @@ git push origin master
 To make your website live, you need to deploy it. I hosted my website's source code on GitHub and created a new account on Netlify, which made it easy to deploy my site. Simply follow the instructions on the Netlify site to connect your GitHub repository and deploy your site.
 And that's it! Your website should now be live and accessible to the public!
 
-#### Conclusion
-
-Creating a personal website using blogdown in R was easier and quicker than I thought. It was a fun and educational experience, and you'll now have a dynamic and professional-looking website to showcase your work and share your thoughts. Whether you're a data scientist, researcher, or just want to have a platform to share your interests, blogdown is a great option. Give it a try and see how you can create your own website today!
+Creating a personal website using blogdown in R was easier and quicker than I thought. It was a fun and educational experience :smiley:. Give it a try and see how you can create your own website today!
 
 
