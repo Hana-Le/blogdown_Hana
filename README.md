@@ -1,2 +1,3 @@
-# blogdown_Hana
-Building personal website by blowdown package in R and the Hugo-apero theme
+# Hi there :wave:
+
+This blog is built with blogdown package in R and Hugo-apero theme, and deployed using Netlify

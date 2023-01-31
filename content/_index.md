@@ -1,8 +1,8 @@
 ---
 title: "Hana Lê"
-subtitle: "Graduate Statistician/Data Analyst"
-description: "Welcome to my personal website!  &#128075;
-As a recent graduate in the field of data science, I am eager to continue learning and sharing my insights through my blog. Follow along as I document my projects and discuss the latest trends in the industry."
+subtitle: "Graduate Statistician/ Data Analyst"
+description: "Welcome to my personal website!
+As a recent graduate in the field of applied statistics, I am eager to continue learning and growing in the field. My goal is to use this blog as a way to document my journey and share my learning experiences with others.🥳"
 images:
   - img/Hana-Le2.png
 image_left: false

@@ -6,7 +6,11 @@ use_featured: false # if false, use most recent by date
 number_categories: 3 # set to zero to exclude
 show_intro: true
 intro: |
-  I’m a recent graduate in Applied Statistics with a passion for data analytics. My background includes six years of experience in project management. I am now seeking opportunities to apply and further develop my skills in statistical modeling, data visualization and deep learning. On this site, I share my learning journey through mini projects . I am open to opportunities in industry, and I would love to work with a team that values accuracy and efficiency.
+  I recently graduated from Macquarie University with a degree in Applied Statistics and have a passion for data analytics. I am eager to put my technical skills, such as R, SQL, Tableau, and Excel, to use and continue growing in this field. I believe that learning is a lifelong journey and am always open to new challenges and opportunities to expand my knowledge.
+  
+  When I'm not working on data, you can find me exploring new destinations, practicing the piano, reading a good book, or soaking up the sights and sounds of Sydney where I currently call home. I am a friendly and easy-going individual who values collaboration, innovation, and growth.
+  
+  I am looking for opportunities in the industry to work with a team that shares these values and where I can make a positive impact through my skills and dedication. If you're looking for a team player who is eager to learn and grow, let's connect!
 show_outro: true
 outro: |
   <i class="fas fa-glass-cheers pr2"></i>!
