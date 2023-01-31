@@ -13,11 +13,9 @@ categories:
 
 
 
-### Creating a Personal Website with Blogdown in R
+### Creating a Personal Website with R Blogdown and Hugo-Apero
 
-I have used Rmarkdown and bookdown before but have never heard about blogdown until recently. I heard someone mention using blogdown to create a personal website and I was intrigued.  I was surprised to find that with a few hours of work, I was able to customize my site using this package. In this post, I'll share my experience and guide you through the process of using Blogdown to create your own website.
-
-In this post, I'll share my experience of using blogdown to create a website and show you how you can do it too.
+I have used Rmarkdown and Bookdown before but have never heard about blogdown until recently. I heard someone mention using blogdown to create a personal website and I was intrigued.  I was surprised to find that with a few hours of work, I was able to customize my site using this package. In this post, I'll share my experience and guide you through the process of using Blogdown to create your own website.
 
 #### Prerequisites:
 
