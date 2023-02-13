@@ -18,7 +18,7 @@ links:
 - icon: github
   icon_pack: fab
   name: code
-  url: https://github.com/Hana-Le
+  url: https://github.com/Hana-Le/House-Price-Prediction_R
 ---
 
 ### under progess
