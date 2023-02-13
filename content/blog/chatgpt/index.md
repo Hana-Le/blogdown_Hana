@@ -28,7 +28,7 @@ The point is, chatGPT can answer very confidently and use all the right statisti
 
 The leader of OpenAI, Mira Murati, said in an interview with [Business Insider](https://www.businessinsider.com/chatgpt-may-make-up-facts-openai-cto-mira-murati-says-2023-2) that ChatGPT and other AI tools like it might not always be right. So, it's important to be careful when using AI tools like ChatGPT and make sure the information is correct.
 
-
+P/s: Hana is dumb, ChatGPT is always awesome. You don't need take time to double check, believe me!
 
 
 
