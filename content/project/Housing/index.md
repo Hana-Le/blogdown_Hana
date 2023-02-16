@@ -354,11 +354,11 @@ data$SalePrice <- NULL
 
 ## 3.2 Exploring predictors of Sale Price
 
-I wanted to quickly figure out which predictor variables were important. I tried several tools, but they couldn’t handle missing data. Since there were many variables with missing values, I decided to wait before imputing the missing data and check first if certain variables were worth completing.
-
-So I tried party package and it worked. It is a popular package for constructing decision trees and random forests.
-
 ### 3.2.1 Finding important predicitors
+
+I wanted to quickly figure out which predictor variables were important. I tried several packages such as randomForest, step-wise regression, earth, but they couldn’t handle missing data. Since there were about 35 variables with missing values, I decided to wait before imputing the missing data and check first if certain variables were worth completing.
+
+I tried party package and it worked. It is a popular package for constructing decision trees and random forests.
 
 ``` r
 library(party)
