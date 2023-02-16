@@ -272,7 +272,7 @@ Graph shows the positive linear relationship between Log_SalePrice with Overal Q
 
 GrLivArea: Above Grade Living Area
 
-```{r, message=FALSE, fig.align='center', out.width= "60%"}
+```{r, message=FALSE, fig.align='center', out.width= "70%"}
 library(ggrepel)
 data_fullPrice$name <- rownames(data_fullPrice)
 ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
@@ -285,7 +285,7 @@ ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
 ### 3.2.3 Correlation matrix
 
 
-```{r correlation, fig.align='center', out.width="120%"}
+```{r correlation, fig.align='center', out.width="150%"}
 # Selecting numeric variables
 vars_num <- which(sapply(data, is.numeric))
 data_varNum <- data[, vars_num] 
