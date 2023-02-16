@@ -316,7 +316,7 @@ labs(x = "Sale Price", y = "Count") +
         axis.line = element_line( linewidth = 1, colour = "black")) 
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/saleprice_hist-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/saleprice_hist-1.png" width="70%" style="display: block; margin: auto;" />
 The Sale price obviously looks right skewed. We need to normalize it to meet normality assumption of linear regression. Log transformation can solve the issue. It looks normally distributed now.
 
 ``` r
@@ -345,7 +345,7 @@ labs(x = "Log(Sale Price)", y = "Count") +
         axis.line = element_line(linewidth = 1, colour = "black")) 
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/saleprice1-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/saleprice1-1.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 # Remove SalePrice
@@ -414,7 +414,7 @@ ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" />
 
 Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3,4,7 and 10, and 1 point above house with grade 4.
 
@@ -432,7 +432,7 @@ ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-12-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" />
 
 ### 3.2.3 Correlation matrix
 
@@ -448,7 +448,7 @@ data_corr <- cor(data_varNum, use="pairwise.complete.obs")
 ggcorrplot(data_corr, type = "full", lab = TRUE, lab_size = 1.5, show.legend = TRUE, tl.cex = 5, ggtheme = ggplot2::theme_dark(), title = "Correlation of numeric predictors")
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/correlation-1.png" width="120%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/correlation-1.png" width="130%" style="display: block; margin: auto;" />
 
 ``` r
 # Select high correlation (> 0.7) to detech multicollinear
