@@ -359,9 +359,9 @@ ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
    coord_flip()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" />
 
-- The most important variables are Neibirhood, GrLivArea and OverallQual. That makes sense to me.
+- The most important variables are Neighborrhood, GrLivArea and OverallQual. That makes sense to me.
 
 ### 3.3.2 Visualizing relationship of Log_SalePrice with most important variables.
 

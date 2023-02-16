@@ -193,7 +193,7 @@ df$MoSold <- as.factor(df$MoSold)
 Some variables should be in ordinal form:
 
 - Some catergorical variables related to quality should be in ordinal form.
-- While OveralQual and OveralCond also should be treated as ordinal variable but since they are have 10 levels which are in numbers so in this case I would leave them as they are and treat them as numeric variable.
+- While OveralQual and OveralCond also should be treated as ordinal variables but since they are have 10 levels which are in numbers so in this case I would leave them as they are and treat them as numeric variable.
 
 ``` r
 # KitchenQual
@@ -376,9 +376,9 @@ ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
    coord_flip()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" />
 
-- The most important variables are Neibirhood, GrLivArea and OverallQual. That makes sense to me.
+- The most important variables are Neighborhood, GrLivArea and OverallQual. That makes sense to me.
 
 ### 3.3.2 Visualizing relationship of Log_SalePrice with most important variables.
 
@@ -398,7 +398,7 @@ ggplot(data=data_fullPrice, aes(x = reorder(Neighborhood,log_SalePrice, FUN = me
 
 **Log_SalePrice vs. OverallQual (r = 0.81)**
 
-OverallQual: rating the overall material and finish of the house on a scale from very poor (1) to very excellent (10)
+OverallQual: rating the overall material and finish of the house on a scale from very poor (1) to very excellent (10).
 
 ``` r
 ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
@@ -409,7 +409,7 @@ ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
 
 <img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
 
-Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3,4,7 and 10, and 1 point above house with grade 4.
+Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3, 4, 7 and 10, and 1 point above of houses with grade 4.
 
 **Log_SalePrice vs. GrLivArea (r = 0.7)**
 

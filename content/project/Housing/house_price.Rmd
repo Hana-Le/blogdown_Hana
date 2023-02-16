@@ -213,7 +213,7 @@ So I tried party and it worked. It is a popular package for constructing decisio
 ### 3.2.1 Finding important predicitors
 
 
-```{r, message=FALSE,fig.align='center', out.width= "60%"}
+```{r, message=FALSE,fig.align='center', out.width= "80%"}
 library(party)
 set.seed(1234)
 # Fit a cforest model
@@ -236,7 +236,7 @@ ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
    coord_flip()
 ```
 
-- The most important variables are Neibirhood, GrLivArea and OverallQual. That makes sense to me.
+- The most important variables are Neighborrhood, GrLivArea and OverallQual. That makes sense to me.
 
 
 ### 3.3.2 Visualizing relationship of Log_SalePrice with most important variables.
