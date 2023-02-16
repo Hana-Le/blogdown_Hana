@@ -29,15 +29,13 @@ packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggc
 sapply(packages, require, character = TRUE)
 ```
 
-<!--more-->
-
 ``` r
 # Reading data
 train <- read.csv("housing_data/train.csv")
 test <- read.csv("housing_data/test.csv")
 ```
 
-## 2.2 Data size and structure
+## 2.2 Data size
 
 The housing train data set has 1460 obs and 81 variables with the response variable Sale Price. The housing test data set has 1459 obs and 80 variables.
 
@@ -63,6 +61,43 @@ dim(df)
     ## [1] 2919   80
 
 The data now has 80 columns consisting of 79 predictors and reponse variable Sale price.
+
+## 2.3 Missingness of the data
+
+The dataset has 13965 missing values (exclude the missing values for Sale price in the test dataset), happens to be about 6%.
+
+``` r
+n_miss(df[,colnames(df)!="SalePrice"])
+```
+
+    ## [1] 13965
+
+``` r
+pct_miss(df[,colnames(df)!="SalePrice"])
+```
+
+    ## [1] 6.055915
+
+``` r
+# Select columns with > 0 missing values
+df_miss <- names(df[colSums(is.na(df[,colnames(df)!="SalePrice"])) > 0])
+cat("There are", length(df_miss), "columns with missing values")
+```
+
+    ## There are 34 columns with missing values
+
+``` r
+vis_miss(df[,df_miss], sort_miss = TRUE) # visualizing missing data
+```
+
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+
+- The predictors having the most missing values which is about 50% or more are: PoolQC, MiscFeature, Alley, Fence, FireplaceQu. They are all categorical variables. As described in the data_description.txt file, the NA value reflects the houses didn’t have these features.
+- Followed by LotFrontage (16.7%), Garage related (5.x%) and basement related variables (2.x%).
+
+I will leave imputing missing values for later after exploring variables
+
+## 2.4 Data structure
 
 ``` r
 # Data structure 
@@ -158,8 +193,8 @@ There are 2 types of data, integer and character. I will change categorical vari
 There are some variables should be in categorical form:
 
 - MSsubClass: should be categorical variable as it indicated the type of dwelling involved in the sale.
-- MoSold should be a categorical rather than numeric variable as high values are not better than low values (i.e. sold in December is not better than in Januray)
-- Same as MoSold for YrSold and YearBuilt. However, these 2 predictors can create a new numeric predictor age which is likely affect Sale price.
+- MoSold should be a categorical rather than numeric variable as high values are not better than low values (i.e. sold in December is not always better or worse than in Januray)
+- Same as MoSold for YrSold and YearBuilt. However, these 2 predictors can create a new numeric predictor age which is likely affecting the Sale price. So I’ll leave them for data type converting for later.
 
 ``` r
 # Categorical variables
@@ -216,41 +251,6 @@ df$Fence <- factor(df$Fence, levels = c("None","MnWw","MnPrv","GdWo","GdPrv"), o
 df$PoolQC <- factor(df$PoolQC, levels = c("None","Fa","Gd","Ex"), ordered =  TRUE)
 ```
 
-## 2.3 Missingness of the data
-
-The dataset has 13965 missing values (exclude the missing values for Sale price in the test dataset), happens to be about 6%.
-
-``` r
-n_miss(df[,colnames(df)!="SalePrice"])
-```
-
-    ## [1] 19366
-
-``` r
-pct_miss(df[,colnames(df)!="SalePrice"])
-```
-
-    ## [1] 8.398056
-
-``` r
-# Select columns with > 0 missing values
-df_miss <- names(df[colSums(is.na(df[,colnames(df)!="SalePrice"])) > 0])
-cat("There are", length(df_miss), "columns with missing values")
-```
-
-    ## There are 34 columns with missing values
-
-``` r
-vis_miss(df[,df_miss], sort_miss = TRUE) # visualizing missing data
-```
-
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-5-1.png" width="672" />
-
-- The predictors having the most missing values which is about 50% or more are: PoolQC, MiscFeature, Alley, Fence, FireplaceQu. They are all categorical variables. As described in the data_description.txt file, the NA value reflects the houses didn’t have these features.
-- Followed by LotFrontage (16.7%), Garage related (5.x%) and basement related variables (2.x%).
-
-I leave imputing missing values later after exploring variables.
-
 ## 2.4 Descriptive statistics
 
 ``` r
@@ -292,7 +292,7 @@ labs(x = "Sale Price", y = "Count") +
         axis.line = element_line( linewidth = 1, colour = "black")) 
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/saleprice_hist-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/saleprice_hist-1.png" width="70%" style="display: block; margin: auto;" />
 The Sale price obviously looks right skewed. We need to normalize it to meet normality assumption of linear regression. Log transformation can solve the issue. It looks normally distributed now.
 
 ``` r
@@ -321,7 +321,7 @@ labs(x = "Log(Sale Price)", y = "Count") +
         axis.line = element_line(linewidth = 1, colour = "black")) 
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/saleprice1-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/saleprice1-1.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 # Remove SalePrice
@@ -330,9 +330,9 @@ data$SalePrice <- NULL
 
 ## 3.2 Exploring predictors of Sale Price
 
-I wanted quickly see which predictor variables were important. I tried several packages including randomForest, earth, Step-wise Regression but failed as they can’t handle missing values. I haven’t done the imputing missing values at this stage as there are quite a lot variables (35) having missing values. I want to see if certain variables are worth to get them full :D.
+I wanted to quickly figure out which predictor variables were important. I tried several tools, but they couldn’t handle missing data. Since there were many variables with missing values, I decided to wait before imputing the missing data and check first if certain variables were worth completing.
 
-So I tried party and it worked. It is a popular package for constructing decision trees and random forests.
+So I tried party package and it worked. It is a popular package for constructing decision trees and random forests.
 
 ### 3.2.1 Finding important predicitors
 
@@ -361,7 +361,7 @@ ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
 
 <img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-9-1.png" width="80%" style="display: block; margin: auto;" />
 
-- The most important variables are Neighborrhood, GrLivArea and OverallQual. That makes sense to me.
+- The most important variables are Neighborhood, GrLivArea and OverallQual. That makes a lot of sense to me.
 
 ### 3.3.2 Visualizing relationship of Log_SalePrice with most important variables.
 
@@ -390,7 +390,7 @@ ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" />
 
 Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3,4,7 and 10, and 1 point above house with grade 4.
 
@@ -408,7 +408,7 @@ ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-12-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" />
 
 ### 3.2.3 Correlation matrix
 
@@ -427,7 +427,7 @@ ggcorrplot(data_corr, type = "full", lab = TRUE, lab_size = 1.5, show.legend = T
 <img src="/project/Housing/house_price_files/figure-html/correlation-1.png" width="120%" style="display: block; margin: auto;" />
 
 ``` r
-# Select high correlation (> 0.7) to detech multicollinear
+# Select high correlation (> 0.7) to detect multicollinear
 corr_table <- melt(data_corr) %>% arrange(desc(value)) %>%
   mutate(value = round(value, digits = 4))%>%
   filter(value !=1)
@@ -453,7 +453,7 @@ corr_table <- melt(data_corr) %>% arrange(desc(value)) %>%
 
 - OverallQual and GrLivArea are hightly correlated with Log_SalePrice like we have found out in the previous session.
 
-- There are some predictor variables are highly correlated to each other (r \> 0.7) including: GarageArea vs GarageCars; GarageYrBlt vs YearBuilt; GrLivArea vs TotalRmsAbvGrd; TotalBsmtSF vs X1stFlrSF. So there is multicollinear issue here that needs to be solved.
+- Some of the predictor variables are highly correlated (r \> 0.7) with each other, such as GarageArea vs. GarageCars, GarageYrBlt vs. YearBuilt, GrLivArea vs. TotalRmsAbvGrd, and TotalBsmtSF vs. X1stFlrSF. This presents a problem with multicollinearity that needs to be addressed.
 
 - Beside, YearBuilt and YearRemodAdd are also highly correlated to each other and have high correlction with Log_SalePrice (r \> 0.5).
 

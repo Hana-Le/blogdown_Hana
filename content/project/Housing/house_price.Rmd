@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 This project is based on the Kaggle competition ["House Prices: Advanced Regression Techniques"](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques). The goal of this project is to predict housing prices in based on the provided training data (train.csv) and evaluate the performance of the model using the test data (test.csv). Through this project, I aim to not only build a robust prediction model but also gain some knowledge and insights on data wrangling and analysis. 
 
 # 2. Overview the data
+
 ## 2.1 Loading packages and reading the data
 
 ```{r housing, message = FALSE, results='hide'}
