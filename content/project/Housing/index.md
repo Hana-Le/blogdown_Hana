@@ -487,6 +487,108 @@ continue….
 
 ### 4.1 Imputing missing data
 
+
+#### Predictors which have the most missing values
+
+As found out in 2.3, five features having the most missing values which is about 50% or more are: PoolQC, MiscFeature, Alley, Fence, FireplaceQu. The NA value reflects the houses didn't have these features. So I replace with "None" to indicate absence of the feature.
+
+
+```r
+# Imputing top missing value predictors
+missing_data_top <- c("PoolQC", "MiscFeature", "Alley", "Fence", "FireplaceQu")
+data <- data %>% mutate(across(missing_data_top,
+    ~ fct_explicit_na(., na_level = "None")
+  ))
+```
+
+
+#### Other missing values
+
+
+```r
+# Imputing missing values
+# Creating function to find the mode first
+
+findMode <- function(x) {
+names(table(x))[table(x)==max(table(x))]
+}
+
+# LotFontage
+data$LotFrontage <- data$LotFrontage %>% replace_na(median(data$LotFrontage, na.rm = TRUE))
+
+# Garage
+data <- data %>% mutate(across(
+    c(GarageFinish, GarageQual, GarageCond, GarageType),
+    ~ fct_explicit_na(., na_level = "None")
+  ))
+
+data$GarageYrBlt <- replace(data$GarageYrBlt, is.na(data$GarageYrBlt), 0)
+
+
+data$GarageCars <- data$GarageCars %>%
+  replace_na(as.integer(findMode(data$GarageCars)))
+
+data$GarageArea <- data$GarageArea %>% 
+  replace_na(median(data$GarageArea, na.rm = T))
+
+# Basement
+data <- data %>% mutate(across(
+  c(BsmtExposure, BsmtCond, BsmtQual, BsmtFinType1, BsmtFinType2),
+    ~ fct_explicit_na(., na_level = "None")
+))
+  
+data <- data %>%  replace_na(list(BsmtFullBath =  0,
+                                  BsmtHalfBath = 0,
+                                  BsmtFinSF1 =  0,
+                                  BsmtFinSF2 = 0,
+                                  BsmtUnfSF = 0,
+                                  TotalBsmtSF = 0))
+# Exteriorior
+data <- data %>% 
+  replace_na(list(Exterior1st = findMode(data$Exterior1st),
+                  Exterior2nd =  findMode(data$Exterior2nd)))
+
+# Electrical
+data$Electrical <- data$Electrical %>% replace_na(findMode(data$Electrical))
+
+# Kitchen
+data$KitchenQual <- data$KitchenQual %>% replace_na(findMode(data$KitchenQual))
+
+# MasVnrType and masVnrArea
+data <- data %>% 
+  replace_na(list(MasVnrType = "None", MasVnrArea = 0))
+
+# MsZoning
+data <- data %>% 
+  group_by(Neighborhood) %>% 
+  mutate(MSZoning = fct_explicit_na(MSZoning, na_level =   
+  findMode(MSZoning)))
+
+# Functional
+data$Functional <- data$Functional %>% replace_na(findMode(data$Functional))
+
+# Utilities
+data$Utilities <- data$Utilities %>%
+  replace_na(findMode(data$Utilities))
+
+# Sale Type
+data$SaleType <- data$SaleType %>% replace_na(findMode(data$SaleType))
+
+# check missing again
+colnames(data)[colSums(is.na(data)) > 0]
+```
+
+```
+## [1] "log_SalePrice"
+```
+
+
+### 4.2 label encoding
+### 4.3 Feature engineering
+## 5. Data Preparation for modelling
+## 6. Modelling
+
+
 ### 4.2 label encoding
 
 ### 4.3 Feature engineering
