@@ -2,7 +2,7 @@
 title: "House Prices Prediction- Advanced Regression Techniques"
 subtitle: "Kaggle competitions"
 excerpt: "This is a competition for data science beginners or machine learning students are looking to expand their skill set. The goal of this competition is to predict the sales price for a sample of houses. All the submissions are evaluated on RMSE between the logarithm of the predicted value and the logarithm of the observed sales price."
-date: "2023-01-29"
+date: "2023-02-25"
 author: "Hana Lê"
 featured: true
 draft: false
@@ -403,7 +403,7 @@ ggplot(data=data_fullPrice, aes(x = reorder(Neighborhood,log_SalePrice, FUN = me
 
 <img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" />
 
-**Log_SalePrice vs. OverallQual (r = 0.81)**
+**SalePrice (log_SalePrice) vs. OverallQual (r = 0.81)**
 
 OverallQual: rating the overall material and finish of the house on a scale from very poor (1) to very excellent (10).
 
@@ -418,7 +418,7 @@ ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
 
 Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3,4,7 and 10, and 1 point above house with grade 4.
 
-**Log_SalePrice vs. GrLivArea (r = 0.7)**
+**Sale Price (log_SalePrice) vs. GrLivArea (r = 0.7)**
 
 GrLivArea: Above Grade Living Area
 
@@ -433,6 +433,8 @@ ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
 ```
 
 <img src="/project/Housing/house_price_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" />
+
+There are 2 unusual points #524 and #1299 that would need to check later.
 
 ### 3.2.3 Correlation matrix
 
@@ -481,7 +483,6 @@ corr_table <- melt(data_corr) %>% arrange(desc(value)) %>%
 
 - Beside, YearBuilt and YearRemodAdd are also highly correlated to each other and have high correlction with Log_SalePrice (r \> 0.5).
 
-continue….
 
 ## 4. Data processing
 
@@ -574,7 +575,7 @@ data$Utilities <- data$Utilities %>%
 # Sale Type
 data$SaleType <- data$SaleType %>% replace_na(findMode(data$SaleType))
 
-# check missing again
+# check missing values again to make sure
 colnames(data)[colSums(is.na(data)) > 0]
 ```
 
@@ -582,12 +583,7 @@ colnames(data)[colSums(is.na(data)) > 0]
 ## [1] "log_SalePrice"
 ```
 
-
-### 4.2 label encoding
-### 4.3 Feature engineering
-## 5. Data Preparation for modelling
-## 6. Modelling
-
+So all missing values have been imputed except our targeted values.
 
 ### 4.2 label encoding
 
