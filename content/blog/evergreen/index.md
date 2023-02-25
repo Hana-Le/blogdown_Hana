@@ -56,10 +56,11 @@ Now it's time to see the sample. Click to “Show in new window” (to the right
 
 1. Go to the content folder in your project to edit the markdown files.
 2. Add front matter metadata like title, date, and author.
-3. Add images to the static/img folder and reference them in your markdown files.
+3. Add images to the static/img folder and reference them in your markdown files. I used Canva to create logo and Unsplash for photos.
 4. Customize the website's style with CSS by editing the CSS files in the theme folder.
 
 #### Step 5: Publish website
+
 1. Push the code to the GitHub repository.
 When you’re happy with the content of your site, it’s time to publish it! To do this, you need to push your code to your GitHub repository.
 
