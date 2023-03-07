@@ -544,7 +544,7 @@ data_varNum <- data[, names(data) %in% vars_numNames]
 
 data_varFac <- data[,!(names(data) %in% vars_numNames)]
 
-cat("There are", length(data_varNum), "numeric variable, ans", length(data_varFac)," factor variables")
+cat("There are", length(data_varNum), "numeric variables, and", length(data_varFac)," factor variables")
 ```
 #### 5.3.2 Centre and Scale numeric predictors
 #### 5.3.2 One hot encoding the categorical predictors
