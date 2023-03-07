@@ -1,7 +1,7 @@
 ---
 title: "House Price Prediction"
 author: "Hana Le"
-date: "2023-02-06"
+date: "2023-03-06"
 output: 
   html_document:
     keep_md: true
@@ -20,7 +20,7 @@ This project is based on the Kaggle competition ["House Prices: Advanced Regress
 
 ```{r housing, message = FALSE, results='hide'}
 # Loading R packages
-packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "mice", "reshape2", "xgboost") 
+packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor", "reshape2", "xgboost") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -71,9 +71,11 @@ vis_miss(df[,df_miss], sort_miss = TRUE) # visualizing missing data
 - The predictors having the most missing values which is about 50% or more are: PoolQC, MiscFeature, Alley, Fence, FireplaceQu. They are all categorical variables. As described in the data_description.txt file, the NA value reflects the houses didn't have these features. 
 - Followed by LotFrontage (16.7%), Garage related (5.x%) and basement related variables (2.x%).
 
-I will leave imputing missing values for later after exploring variables
+I will leave dropping/imputing missing values for later after exploring variables.
 
-## 2.4 Data structure
+## 2.4 Data enginering
+
+### 2.4.1 Data struture
 
 ```{r}
 # Data structure 
@@ -87,14 +89,19 @@ There are 2 types of data, integer and character. I will change categorical vari
 There are some variables should be in categorical form:
 
 - MSsubClass: should be categorical variable as it indicated the type of dwelling involved in the sale. 
-- MoSold should be a categorical rather than numeric variable as high values are not better than low values (i.e. sold in December is not always better or worse than in Januray)
+- MoSold should be a categorical rather than numeric variable as high values are not better than low values. The movement of house prices is observed not having a monthly trend  (i.e. sold in December is not always better or worse than in Januray)
 - Same as MoSold for YrSold and YearBuilt. However, these 2 predictors can create a new numeric predictor age which is likely affecting the Sale price. So I'll leave them for data type converting for later.
+
+Others:
+
+- YearBuild of some houses were the same with YearRemodAdd, so not all houses were remoded. 
+- GarageQual and GaraCond look the similar, their decriptions in the data_description.txt sounds the similar too. Need to check the association between them.
 
 ```{r}
 # Categorical variables
 vars_cat <- which(sapply(df, is.character))
 
-# Change data type to factor
+# Change character variables into factor
 df[,vars_cat] <- data.frame(lapply(df[,vars_cat], as.factor))
 
 #Convert MSSubClass and MoSold variables into factor
@@ -105,9 +112,13 @@ df$MoSold <- as.factor(df$MoSold)
 Some variables should be in ordinal form:
 
 - Some catergorical variables related to quality should be in ordinal form.
-- While OveralQual and OveralCond also should be treated as ordinal variable but since they are have 10 levels which are in numbers so in this case I would leave them as they are and treat them as numeric variable.
+- While OveralQual and OveralCond also should be treated as ordinal variable but since they are have 10 levels which are in numbers so in this case I would leave them as they are and treat them as numeric variables.
 
 ```{r}
+# OverallQual and OverallCond
+df$OverallQual <- factor(df$OverallQual, levels = c(1:10), ordered = TRUE)
+df$OverallCond <- factor(df$OverallCond, levels = c(1:10), ordered = TRUE)
+
 # KitchenQual
 df$KitchenQual <- factor(df$KitchenQual, levels = c("Po","Fa","TA","Gd","Ex"), ordered = TRUE)
 
@@ -130,7 +141,7 @@ df$BsmtCond <- factor(df$BsmtCond, levels = c("None","Po","Fa","TA","Gd","Ex"), 
 
 df$BsmtExposure <- factor(df$BsmtExposure, levels = c("None","Po","Fa","TA","Gd","Ex"), ordered = TRUE)
 
-df$BsmtFinType1 <- factor(df$BsmtFinType1, levels = c("None","Po","Fa","TA","Gd","Ex"), ordered = TRUE)
+df$BsmtFinType1 <- factor(df$BsmtFinType1, levels = c("None","Unf","LwQ","Rec","BLQ","ALQ","GLQ"), ordered = TRUE)
 
 # FireplaceQu
 df$FireplaceQu <- factor(df$FireplaceQu, levels = c("None","Po","Fa","TA","Gd","Ex"), ordered = TRUE)
@@ -145,10 +156,18 @@ df$Fence <- factor(df$Fence, levels = c("None","MnWw","MnPrv","GdWo","GdPrv"), o
 df$PoolQC <- factor(df$PoolQC, levels = c("None","Fa","Gd","Ex"), ordered =  TRUE)
 ```
 
+### 2.4.2 Data clearning
+
+This part is mainly fixing typos
+
+```{r}
+df <- df %>% 
+  mutate(YearRemodAdd = ifelse(YearRemodAdd > YrSold, YrSold, YearRemodAdd), #typo
+         GarageYrBlt = ifelse(GarageYrBlt == 2207, 2007, GarageYrBlt)) # typo
+```
 
 
-
-## 2.4 Descriptive statistics
+## 2.5 Descriptive statistics
 
 ```{r, warning=FALSE, message=FALSE,out.width= "60%"}
 df_table <- describe(df)
@@ -218,7 +237,7 @@ So I tried party package and it worked. It is a popular package for constructing
 
 ```{r, message=FALSE,fig.align='center', out.width= "80%"}
 library(party)
-set.seed(1234)
+set.seed(4321)
 # Fit a cforest model
 fit <- cforest(log_SalePrice ~., data = data[1:1460,], control = cforest_unbiased(mtry = 2,ntree = 50))
 
@@ -318,7 +337,6 @@ corr_table <- melt(data_corr) %>% arrange(desc(value)) %>%
 
 - Beside, YearBuilt and YearRemodAdd are also highly correlated to each other and have high correlction with Log_SalePrice (r > 0.5). 
 
-continue....
 
 ## 4. Data processing
 ### 4.1 Imputing missing data
@@ -367,8 +385,9 @@ data$GarageArea <- data$GarageArea %>%
 # Basement
 data <- data %>% mutate(across(
   c(BsmtExposure, BsmtCond, BsmtQual, BsmtFinType1, BsmtFinType2),
-    ~ fct_explicit_na(., na_level = "None")
-))
+    ~ fct_explicit_na(., na_level = "None")))
+
+
   
 data <- data %>%  replace_na(list(BsmtFullBath =  0,
                                   BsmtHalfBath = 0,
@@ -407,12 +426,128 @@ data$Utilities <- data$Utilities %>%
 # Sale Type
 data$SaleType <- data$SaleType %>% replace_na(findMode(data$SaleType))
 
-# check missing again
+# check missing values again if they are all imputed except the targeted values, Sale price.
 colnames(data)[colSums(is.na(data)) > 0]
 ```
 
+### 4.2 Feature engineering
 
-### 4.2 label encoding
-### 4.3 Feature engineering
+#### 4.2.1 Adding Age, Remod (yes/no), Basement (yes/no) varibles
+
+Based on observations from the 2.4 (Data structure) and 3.2.3 (Correlation matrix) So I create Age, Remod (yes/no) to reflect its age and if the house was remodeled.
+
+I realized not all houses having basement which could add more value to Sale price. So I create a new feature basement/none to replace TotalBsmtSF.
+
+```{r, warning=FALSE}
+#data %>% select(YearBuilt, YearRemodAdd, YrSold) %>% head(10)
+data$Age <- data$YrSold - data$YearRemodAdd
+data$Remod <- ifelse(data$YearBuilt == data$YearRemodAdd, 0 , 1)
+
+# Convert YrSold to factor after creating Age avariable
+data$YrSold <- as.factor(data$YrSold)
+
+#sum(data1$TotalBsmtSF == 0) # 79 houses without basement
+data <- data %>% mutate(Basement = case_when(TotalBsmtSF == 0 ~ 0, TRUE ~ 1))
+
+# Checking correlation of new variables with Sale price
+# it's obvious the house price is negatively correlated with Age
+cor(data$log_SalePrice, data$Age, use = "pairwise.complete.obs")
+```
+
+
+#### 4.2.2 Groupping variables: Bathroom and  Porcharea
+
+Among these numeric features, there are some features I think can be group together to create stronger predictors such as Bathrooms and Porch area rather than breaking them down.
+
+```{r}
+data <- data %>% mutate(
+Bathrooms = FullBath + HalfBath*0.5 + BsmtHalfBath*0.5 + BsmtFullBath,
+PorchArea = ScreenPorch + X3SsnPorch + OpenPorchSF + EnclosedPorch 
+)
+
+# Checking correlation with Sale price again
+# It's obvious bathroom now becomes a stronger predictor while Porcharea seems remaining the same.
+cor(data$log_SalePrice, data$Bathrooms, use = "pairwise.complete.obs")
+cor(data$log_SalePrice, data$PorchArea, use = "pairwise.complete.obs")
+```
+
+
 ## 5. Data Preparation for modelling
+### 5.1 Dropping highly correlated/associated variables
+
+Upon the observations from 2.4 (data structure) and data_description, GarageCond and GarageQual appear likely hightly associated. The cross-tabulation suggests a strong likelihood of high association. The Chi Squared test result also confirms it. So I'm going to drop GarageCond.
+
+
+```{r, warning =FALSE}
+data %>% tabyl(GarageCond, GarageQual) %>%
+  adorn_totals("row") 
+
+chisq.test(data$GarageQual, data$GarageCond, correct = FALSE)
+```
+
+
+Based on the result from the 3.2.3 (Correlation matrix), I'm dropping variables that are highly correlated with another variables and having lower correlation with Sale price which including TotalBsmtSF, GarageArea, TotalRmsAbvGrd, GarageYrBlt, and YearRemodAdd.
+
+```{r}
+# highly correlated/associated  variables 
+high_corr_vars <- c("GarageCond", "TotalBsmtSF","GarageArea", "TotalRmsAbvGrd", "GarageYrBlt", "YearRemodAdd")
+
+data <- data[, !(names(data) %in% high_corr_vars)]
+
+```
+
+
+
+### 5.2 Removing outliers
+
+In order to detect outliers, I used Cook's distance, a statistical measure that identifies influential observations in a regression analysis. As a rule of thumb, obs with a Cook's distance value greater than 1 should be removed. To assess the level of influence of these observations, a commonly used threshold is 4 times the mean Cook's distance. In this case, three points (822, 524, and 826) were identified as having an outstanding level of influence
+
+```{r}
+mod <- lm(log_SalePrice ~ ., data = na.omit(data))
+
+cooksd <- cooks.distance(mod)
+```
+
+
+```{r}
+plot(cooksd, pch="*", cex=2, main="Influential Obs by Cooks distance")  # plot Cook's distance
+abline(h = 4*mean(cooksd, na.rm = T), col = "red")  # Influential level cut off 
+text(x = 1:length(cooksd)+1, y = cooksd, labels = ifelse(cooksd > 0.5,names(cooksd),""), col= "red") # add labels for threshold at 0.5
+```
+
+
+These 3 outliers having certain unusual values for important predictors. # 822 had small LotArea and GrLivArea, low OverallQua, located in low value Neighborhood, and very high Age but had a log_SalePrice value that was close to the mean. Meanwhile # 524 had very large LotArea & GrLivArea,  and # 826 was located in high_end Neighborhood,both had high OverallQual but both low values for log_SalePrice.
+
+```{r}
+data[c(822,524,826),] %>% 
+  select(LotArea, GrLivArea, OverallQual, Neighborhood, log_SalePrice,MSSubClass, KitchenQual, Age) %>% 
+  knitr::kable()
+
+```
+
+
+```{r}
+# Removing outliers
+data <- data[-c(822,524,826),]
+```
+
+### 5.3 PreProcessing predictor variables
+
+```{r}
+vars_numNames <- names(vars_num)
+
+vars_numNames <- vars_numNames[!(vars_numNames %in% c("MSSubClass", "MoSold", "YrSold"))]
+
+vars_numNames <- append(vars_numNames, c("Age", "Bathrooms", "PorchArea"))
+
+data_varNum <- data[, names(data) %in% vars_numNames]
+
+data_varFac <- data[,!(names(data) %in% vars_numNames)]
+
+cat("There are", length(data_varNum), "numeric variable, ans", length(data_varFac)," factor variables")
+```
+#### 5.3.2 Centre and Scale numeric predictors
+#### 5.3.2 One hot encoding the categorical predictors
+#### 5.3.3 Split training data into train and test sets
 ## 6. Modelling
+## 7. Conclusion
