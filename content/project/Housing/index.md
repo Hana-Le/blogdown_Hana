@@ -823,7 +823,7 @@ cat("There are", length(data_varNum), "numeric variables, and", length(data_varF
 ```
 
 ```
-## There are 31 numeric variable, ans 49  factor variables
+## There are 31 numeric variables, and 49  factor variables
 ```
 #### 5.3.2 Centre and Scale numeric predictors
 #### 5.3.2 One hot encoding the categorical predictors
