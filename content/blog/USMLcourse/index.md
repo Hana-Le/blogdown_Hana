@@ -1,6 +1,7 @@
 ---
 title: Unsupervised ML by Andrew Ng
 author: Hana Le
+excerpt: "Learning Unsupervised ML with Andrew Ng: My Experience"
 date: '2023-03-30'
 slug: []
 categories: []
