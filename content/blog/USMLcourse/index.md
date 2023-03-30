@@ -24,7 +24,9 @@ The course starts with the basics, covering regression and linear regression, lo
 
 <br><br>
 
-One of the highlights about this course is the interactive graphs as well many other graphs Andrew uses to explain the concepts. The exercises and assignments are in Python using Jupyter notebooks, which are challenging but not overwhelming. The course takes about 3 weeks if you study for 9-10 hours per week, but if you're familiar with some of the topics, you may be able to complete it more quickly. I personally managed to finish it in less than a week, as I had some prior knowledge from a similar course, I took in school a while ago. Nonetheless, I still found the course to be incredibly useful in consolidating my knowledge of machine learning and improving my Python skills.
+One of the highlights about this course is the interactive graphs as well many other graphs Andrew uses to explain the concepts. The exercises and assignments are in Python using Jupyter notebooks, which are challenging but not overwhelming.
+
+The course takes about 3 weeks if you study for 9-10 hours per week, but if you're familiar with some of the topics, you may be able to complete it more quickly. I personally managed to finish it in less than a week, as I had some prior knowledge from a similar course, I took in school a while ago. Nonetheless, I still found the course to be incredibly useful in consolidating my knowledge of machine learning and improving my Python skills.
 
 I would highly recommend this course as a great introduction to unsupervised machine learning. It's an excellent first step in the Machine Learning specialization program, which I'm planning to continue with by taking the other two courses. I'm excited to see where this learning journey takes me and what new opportunities it may open up for me.
 
