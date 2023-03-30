@@ -1,6 +1,6 @@
 ---
 title: "Hana Lê"
-subtitle: "Graduate Statistician/ Data Analyst"
+subtitle: "Entry Level Data Analyst | Statistician"
 description: "Welcome to my personal website!
 As a recent graduate in the field of applied statistics, I am eager to continue learning and growing in the field. My goal is to use this blog as a way to document my journey and share my learning experiences with others.🥳"
 images:
