@@ -2,12 +2,11 @@
 title: ChatGPT is awesome but...
 author: Hana Le
 date: '2023-02-13'
-excerpt: "ChatGPT may makeup facts"
 slug: []
 categories: []
 tags: []
 subtitle: ''
-excerpt: ''
+excerpt: "ChatGPT may makeup facts"
 draft: no
 series: ~
 layout: single
