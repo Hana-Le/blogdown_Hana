@@ -1,7 +1,7 @@
 ---
 ## Configure sidebar content in narrow column
 author: "Hana Lê"
-role: "Graduate Statistician/ Data Analyst"
+role: "Entry Level Data Analyst | Statistician"
 avatar_shape: circle # circle, square, rounded, leave blank to exclude
 show_social_links: true # specify social accounts in site config
 link_list_label: "Interests" # bookmarks, elsewhere, etc.
