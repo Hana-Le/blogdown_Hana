@@ -3,7 +3,7 @@ title: "House Price Prediction"
 author: "Hana Le"
 date: "2023-03-06"
 output: 
-  html_document:
+ html_document:
     keep_md: true
 ---
 
@@ -20,7 +20,7 @@ This project is based on the Kaggle competition ["House Prices: Advanced Regress
 
 ```{r housing, message = FALSE, results='hide'}
 # Loading R packages
-packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor", "reshape2", "xgboost") 
+packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor","caret", "reshape2", "xgboost") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -206,7 +206,7 @@ The Sale price obviously looks right skewed. We need to normalize it to meet nor
 skewness(data$SalePrice, na.rm = T)
 # using data from now
 data <- data %>% mutate(log_SalePrice = log(SalePrice))
-skewness(data$log_SalePrice, na.rm= T)
+skew(data$log_SalePrice, na.rm= T)
 ```
 
 
@@ -452,6 +452,7 @@ data <- data %>% mutate(Basement = case_when(TotalBsmtSF == 0 ~ 0, TRUE ~ 1))
 # Checking correlation of new variables with Sale price
 # it's obvious the house price is negatively correlated with Age
 cor(data$log_SalePrice, data$Age, use = "pairwise.complete.obs")
+
 ```
 
 
@@ -500,7 +501,7 @@ data <- data[, !(names(data) %in% high_corr_vars)]
 
 ### 5.2 Removing outliers
 
-In order to detect outliers, I used Cook's distance, a statistical measure that identifies influential observations in a regression analysis. As a rule of thumb, obs with a Cook's distance value greater than 1 should be removed. To assess the level of influence of these observations, a commonly used threshold is 4 times the mean Cook's distance. In this case, three points (822, 524, and 826) were identified as having an outstanding level of influence
+In order to detect outliers, I used Cook's distance, a statistical measure that identifies influential observations in a regression analysis. As a rule of thumb, obs with a Cook's distance value greater than 1 should be removed. To assess the level of influence of these observations, a commonly used threshold is 4 times the mean Cook's distance. In this case, the threshold of 0.5 Cook's distance is used. As a result, three points (822, 524, and 826) were identified as having an outstanding level of influence.
 
 ```{r}
 mod <- lm(log_SalePrice ~ ., data = na.omit(data))
@@ -516,7 +517,7 @@ text(x = 1:length(cooksd)+1, y = cooksd, labels = ifelse(cooksd > 0.5,names(cook
 ```
 
 
-These 3 outliers having certain unusual values for important predictors. # 822 had small LotArea and GrLivArea, low OverallQua, located in low value Neighborhood, and very high Age but had a log_SalePrice value that was close to the mean. Meanwhile # 524 had very large LotArea & GrLivArea,  and # 826 was located in high_end Neighborhood,both had high OverallQual but both low values for log_SalePrice.
+These 3 outliers having certain unusual values for important predictors. # 822 had small LotArea and GrLivArea, low OverallQua, located in low value Neighborhood, and very high Age but had a log_SalePrice value that was close to the mean. Meanwhile # 524 had very large LotArea & GrLivArea,  and # 826 was located in high_end Neighborhood, both had high OverallQual but both low values for log_SalePrice.
 
 ```{r}
 data[c(822,524,826),] %>% 
@@ -536,18 +537,158 @@ data <- data[-c(822,524,826),]
 ```{r}
 vars_numNames <- names(vars_num)
 
-vars_numNames <- vars_numNames[!(vars_numNames %in% c("MSSubClass", "MoSold", "YrSold"))]
+vars_numNames <- vars_numNames[!(vars_numNames %in% c("MSSubClass",  "MoSold", "YrSold", "log_SalePrice", "OverallQual", "OverallCond"))]
 
 vars_numNames <- append(vars_numNames, c("Age", "Bathrooms", "PorchArea"))
 
 data_varNum <- data[, names(data) %in% vars_numNames]
 
 data_varFac <- data[,!(names(data) %in% vars_numNames)]
+data_varFac <- data_varFac[, names(data_varFac) != "log_SalePrice"]
 
-cat("There are", length(data_varNum), "numeric variables, and", length(data_varFac)," factor variables")
+cat("There are", length(data_varNum), "numeric variable, and", length(data_varFac)," factor variables")
+
 ```
-#### 5.3.2 Centre and Scale numeric predictors
+
+#### 5.3.1 Fixing skewness and normalizing the numeric predictors
+
+In order to fix skewness, I'm going to log all numeric predictors that have absolute skewness > 0.8.
+
+```{r}
+
+for (i in 1:ncol(data_varNum)) {
+  if (abs(skew(data_varNum[,i])) > 0.8){
+              data_varNum[,i] <- log(data_varNum[,i] + 1) # log + 1 to avoid 0 values
+  }
+}
+```
+
+```{r}
+pre_varNum <- preProcess(data_varNum, method = c("center", "scale"))
+print(pre_varNum)
+
+```
+
+```{r}
+data_norm <- predict(pre_varNum, data_varNum)
+dim(data_norm)
+
+```
+
+
 #### 5.3.2 One hot encoding the categorical predictors
-#### 5.3.3 Split training data into train and test sets
+
+One hot encoding is a common technique for encoding categorical variables as numeric variables in machine learning. I'm going to use model.matrix() to perform one hot encoding for the dataset.
+```{r}
+data_dummies <- as.data.frame(model.matrix (~.-1, data_varFac)) # use all variables in the data except for intercept
+dim(data_dummies)
+
+```
+#### Removing levels with few obs in the data
+
+```{r}
+# Check levels that has a few obs (less than 10) in the train set
+sparse_train <- which(colSums(data_dummies[1:nrow(data[!is.na(data$log_SalePrice),]),]) < 10)
+colnames(data_dummies[sparse_train])
+```
+
+```{r}
+# Removing levels that has a few obs in the train set
+data_dummies <- data_dummies[, -sparse_train]
+dim(data_dummies)
+```
+
+
+```{r}
+# Check levels that has a few obs (less than 10) in the test set
+sparse_test <- which(colSums(data_dummies[(nrow(data[!is.na(data$log_SalePrice),]) +1 ): nrow(data),]) < 10)
+colnames(data_dummies[sparse_test])
+```
+```{r}
+# Removing levels that has a few obs in the test set
+data_dummies <- data_dummies[, -sparse_test]
+dim(data_dummies)
+```
+In total, 95 one hot encoded predictors with a few obs have been removed.
+
+Now getting the ready data for modelling.
+
+```{r}
+data_combo <- cbind(data_dummies, data_norm)
+
+data_combo$log_SalePrice <- data$log_SalePrice
+
+```
+
+#### 5.3.3 Split training data into train and test sets.
+
+Now it's time to split the combined dataset above into train set and test set again
+
+```{r}
+train1 <- data_combo[!is.na(data$log_SalePrice),]
+test1 <- data_combo[is.na(data$log_SalePrice),]
+
+```
+
 ## 6. Modelling
+
+```{r}
+# Split the train1 data set into train2 and test2 subsets
+set.seed(20231)
+trainIndex <- createDataPartition(train1$log_SalePrice, p = 0.8, list = FALSE)
+train2 <- train1[trainIndex, ]
+test2 <- train1[-trainIndex, ]
+```
+
+```{r}
+# Define the tuning grid for XGBoost
+xgb_grid <- expand.grid(
+            nrounds = 400,
+            max_depth = c(3,4,5),
+            eta = seq(0.05,0.1, by= 0.025),
+            gamma = 0,
+            colsample_bytree = 1,
+            min_child_weight = 4,
+            subsample = 1)
+
+# Train an XGBoost model on the train2 subset
+set.seed(12345)
+xgb_model <- train(log_SalePrice ~ .,
+                   data = train2,
+                   method = "xgbTree",
+                   trControl = trainControl(method = "cv", number = 5),
+                   tuneGrid = xgb_grid)
+
+xgb_model$bestTune
+
+```
+
+```{r}
+# Evaluate the performance of the XGBoost model on the test2 subset
+xgb_pred <- predict(xgb_model, newdata = test2)
+xgb_rmse <- sqrt(mean((xgb_pred - test2$log_SalePrice)^2))
+xgb_rmse
+
+# Use the trained XGBoost model to predict the house prices in the test1 data set
+pred_test <- predict(xgb_model, newdata = test1)
+
+# Apply inverse log transformation to the predicted house prices
+pred_SalePrice<- exp(pred_test)
+```
+
+```{r}
+# Create a data frame with Id and predicted SalePrice columns
+pred_df <- data.frame(Id =  test_labels, SalePrice = pred_SalePrice)
+head(pred_df)
+```
+
+```{r}
+# Write the data frame to a CSV file
+write.csv(pred_df, file = "predicted_sale_prices.csv", row.names = FALSE)
+```
+
+
 ## 7. Conclusion
+
+My submission for the Kaggle competition using XGBoost achieved a score of 0.13097, which I was satisfied with for my first attempt, even it is way to far to reach top 5 :D. However, I learned that there are other methods that could be used to improve the score, such as trying different feature engineering techniques and experimenting with model parameters or other algorithms like Lasso or glmnet. Overall, this experience has given me knowledge and insights on data wrangling and a valuable introduction to using XGBoost for machine learning projects and has motivated me to continue exploring different methods to improve my performance.
+

@@ -3,7 +3,7 @@ title: "House Price Prediction"
 author: "Hana Le"
 date: "2023-03-06"
 output: 
-  html_document:
+ html_document:
     keep_md: true
 ---
 
@@ -19,7 +19,7 @@ This project is based on the Kaggle competition ["House Prices: Advanced Regress
 
 ```r
 # Loading R packages
-packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor", "reshape2", "xgboost") 
+packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor","caret", "reshape2", "xgboost") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -101,7 +101,7 @@ cat("There are", length(df_miss), "columns with missing values")
 vis_miss(df[,df_miss], sort_miss = TRUE) # visualizing missing data
 ```
 
-![](house_price_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+![](house_price_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
 - The predictors having the most missing values which is about 50% or more are: PoolQC, MiscFeature, Alley, Fence, FireplaceQu. They are all categorical variables. As described in the data_description.txt file, the NA value reflects the houses didn't have these features. 
 - Followed by LotFrontage (16.7%), Garage related (5.x%) and basement related variables (2.x%).
@@ -300,8 +300,8 @@ datatable(options = list(pageLength = 10),width = "50%")
 ```
 
 ```{=html}
-<div id="htmlwidget-13661285be99b8499352" style="width:50%;height:auto;" class="datatables html-widget "></div>
-<script type="application/json" data-for="htmlwidget-13661285be99b8499352">{"x":{"filter":"none","vertical":false,"data":[["MSSubClass*","MSZoning*","LotFrontage","LotArea","Street*","Alley*","LotShape*","LandContour*","Utilities*","LotConfig*","LandSlope*","Neighborhood*","Condition1*","Condition2*","BldgType*","HouseStyle*","OverallQual*","OverallCond*","YearBuilt","YearRemodAdd","RoofStyle*","RoofMatl*","Exterior1st*","Exterior2nd*","MasVnrType*","MasVnrArea","ExterQual*","ExterCond*","Foundation*","BsmtQual*","BsmtCond*","BsmtExposure*","BsmtFinType1*","BsmtFinSF1","BsmtFinType2*","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","Heating*","HeatingQC*","CentralAir*","Electrical*","X1stFlrSF","X2ndFlrSF","LowQualFinSF","GrLivArea","BsmtFullBath","BsmtHalfBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQual*","TotRmsAbvGrd","Functional*","Fireplaces","FireplaceQu*","GarageType*","GarageYrBlt","GarageFinish*","GarageCars","GarageArea","GarageQual*","GarageCond*","PavedDrive*","WoodDeckSF","OpenPorchSF","EnclosedPorch","X3SsnPorch","ScreenPorch","PoolArea","PoolQC*","Fence*","MiscFeature*","MiscVal","MoSold*","YrSold","SaleType*","SaleCondition*","SalePrice"],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80],[2919,2915,2433,2919,2919,198,2919,2919,2917,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2918,2918,2895,2896,2919,2919,2919,2838,2837,276,2840,2918,2839,2918,2918,2918,2919,2919,2919,2918,2919,2919,2919,2919,2917,2917,2919,2919,2919,2919,2918,2919,2917,2919,1499,2762,2760,2760,2918,2918,2760,2760,2919,2919,2919,2919,2919,2919,2919,10,571,105,2919,2919,2919,2918,2919,1460],[5.267,4.028,69.306,10168.114,1.996,1.394,2.948,3.777,1,4.056,1.054,13.321,3.04,3.002,1.506,4.027,6.089,5.565,1971.313,1984.263,2.396,2.063,10.623,11.335,2.765,102.201,3.397,3.086,2.393,4.577,4.003,5,4.64,441.423,5.678,49.582,560.772,1051.778,2.025,2.534,1.933,4.889,1159.582,336.484,4.694,1500.76,0.43,0.061,1.568,0.38,2.86,1.045,3.511,6.452,6.76,0.597,4.443,3.284,1978.041,2.815,1.767,472.875,3.962,3.971,2.831,93.71,47.487,23.098,2.602,16.062,2.252,3.2,3.588,2.876,50.826,6.213,2007.793,8.491,4.779,180921.196],[4.345,0.659,23.345,7886.996,0.064,0.49,1.41,0.704,0.019,1.604,0.249,5.822,0.874,0.209,1.207,1.913,1.41,1.113,30.291,20.893,0.821,0.539,3.199,3.551,0.608,179.334,0.58,0.372,0.727,0.699,0.295,0,2.058,455.611,1.003,169.206,439.544,440.766,0.246,1.743,0.25,0.41,392.362,428.701,46.397,506.051,0.525,0.246,0.553,0.503,0.823,0.214,0.662,1.569,0.936,0.646,0.766,1.79,25.206,0.82,0.762,215.395,0.253,0.237,0.537,126.527,67.575,64.244,25.188,56.184,35.664,0.789,0.836,0.474,567.402,2.715,1.315,1.595,1.078,79442.503],[5,4,68,9453,2,1,4,4,1,5,1,13,3,3,1,3,6,5,1973,1993,2,2,13,14,3,0,3,3,2,5,4,5,5,368.5,6,0,467,989.5,2,1,2,5,1082,0,0,1444,0,0,2,0,3,1,3,6,7,1,5,2,1979,3,2,480,4,4,3,0,26,0,0,0,0,3,3,3,0,6,2008,9,5,163000],[4.723,4.072,68.435,9499.492,2,1.369,3.059,3.997,1,4.319,1,13.306,3,3,1.161,4.013,6.069,5.47,1974.191,1985.62,2.246,2,10.925,11.645,2.735,61.414,3.34,3.009,2.454,4.521,4,5,4.675,382.444,5.972,1.905,512.459,1034.984,2,2.418,2,5,1127.139,274.21,0,1453.447,0.394,0,1.559,0.34,2.836,1,3.456,6.34,7,0.517,4.531,3.115,1980.693,2.769,1.768,468.42,4,4,3,71.154,33.804,4.94,0,0,0,3.25,3.512,3,0,6.153,2007.741,8.916,5,170783.291],[5.93,0,17.791,3023.021,0,0,0,0,0,0,0,7.413,0,0,0,0,1.483,0,37.065,20.756,0,0,1.483,2.965,0,0,0,0,1.483,1.483,0,0,2.965,546.338,0,0,415.128,350.635,0,0,0,0,348.411,0,0,464.054,0,0,0,0,0,0,0,1.483,0,1.483,1.483,0,31.135,1.483,0,183.842,0,0,0,0,38.548,0,0,0,0,1.483,0,0,0,2.965,1.483,0,0,56338.8],[1,1,21,1300,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1872,1950,1,1,1,1,1,0,2,1,1,3,2,5,2,0,1,0,0,0,1,1,1,1,334,0,0,334,0,0,0,0,0,0,2,2,1,0,2,1,1895,2,0,0,2,2,1,0,0,0,0,0,0,2,2,1,0,1,2006,1,1,34900],[16,5,313,215245,2,2,4,4,2,5,3,25,9,8,5,8,10,9,2010,2010,6,8,15,16,4,1600,5,5,6,6,5,5,7,5644,6,1526,2336,6110,6,5,2,5,5095,2065,1064,5642,3,2,4,2,8,3,5,15,7,4,6,6,2010,4,5,1488,6,6,3,1424,742,1012,508,576,800,4,5,4,17000,12,2010,9,6,755000],[15,4,292,213945,1,1,3,3,1,4,2,24,8,7,4,7,9,8,138,60,5,7,14,15,3,1600,3,4,5,3,3,0,5,5644,5,1526,2336,6110,5,4,1,4,4761,2065,1064,5308,3,2,4,2,8,3,3,13,6,4,4,5,115,2,5,1488,4,4,2,1424,742,1012,508,576,800,2,3,3,17000,11,4,8,5,720100],[0.738,-1.75,1.501,12.816,-15.492,0.431,-0.617,-3.115,53.954,-1.196,4.973,-0.01,2.982,12.054,2.191,0.317,0.197,0.57,-0.599,-0.451,1.553,8.703,-0.731,-0.68,-0.061,2.6,0.786,1.315,0.008,0.252,-0.332,null,-0.168,1.424,-3.397,4.143,0.919,1.162,12.073,0.486,-3.457,-4.792,1.469,0.861,12.083,1.269,0.623,3.928,0.168,0.694,0.326,4.3,0.438,0.758,-4.052,0.733,-0.969,0.747,-0.661,0.353,-0.218,0.241,-2.156,-3.641,-2.978,1.841,2.534,4.002,11.37,3.945,16.89,-0.293,0.673,-3.046,21.936,0.196,0.132,-3.723,-2.787,1.879],[-0.476,5.907,11.259,264.313,238.089,-1.824,-1.589,8.387,2910.002,-0.441,26.508,-1.029,15.666,307.799,3.187,-0.955,0.063,1.472,-0.514,-1.347,0.869,76.672,-0.311,-0.561,-0.14,9.228,0.065,6.269,0.751,-0.363,11.35,null,-1.619,6.884,10.886,18.787,0.399,9.125,167.802,-1.513,9.956,29.348,6.936,-0.425,174.51,4.108,-0.738,14.808,-0.541,-1.035,1.933,19.726,-0.255,1.162,16.203,0.072,1.46,-1.312,-0.383,-1.427,0.234,0.933,20.131,36.746,7.105,6.721,10.907,28.306,149.048,17.73,297.914,-1.504,-0.893,9.413,562.719,-0.457,-1.156,13.598,7.208,6.497],[0.08,0.012,0.473,145.98,0.001,0.035,0.026,0.013,0,0.03,0.005,0.108,0.016,0.004,0.022,0.035,0.026,0.021,0.561,0.387,0.015,0.01,0.059,0.066,0.011,3.332,0.011,0.007,0.013,0.013,0.006,0,0.039,8.434,0.019,3.132,8.137,8.16,0.005,0.032,0.005,0.008,7.262,7.935,0.859,9.366,0.01,0.005,0.01,0.009,0.015,0.004,0.012,0.029,0.017,0.012,0.02,0.034,0.48,0.016,0.014,3.987,0.005,0.005,0.01,2.342,1.251,1.189,0.466,1.04,0.66,0.249,0.035,0.046,10.502,0.05,0.024,0.03,0.02,2079.105]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>vars<\/th>\n      <th>n<\/th>\n      <th>mean<\/th>\n      <th>sd<\/th>\n      <th>median<\/th>\n      <th>trimmed<\/th>\n      <th>mad<\/th>\n      <th>min<\/th>\n      <th>max<\/th>\n      <th>range<\/th>\n      <th>skew<\/th>\n      <th>kurtosis<\/th>\n      <th>se<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-a3ab1898f98c994aaf1d" style="width:50%;height:auto;" class="datatables html-widget "></div>
+<script type="application/json" data-for="htmlwidget-a3ab1898f98c994aaf1d">{"x":{"filter":"none","vertical":false,"data":[["MSSubClass*","MSZoning*","LotFrontage","LotArea","Street*","Alley*","LotShape*","LandContour*","Utilities*","LotConfig*","LandSlope*","Neighborhood*","Condition1*","Condition2*","BldgType*","HouseStyle*","OverallQual*","OverallCond*","YearBuilt","YearRemodAdd","RoofStyle*","RoofMatl*","Exterior1st*","Exterior2nd*","MasVnrType*","MasVnrArea","ExterQual*","ExterCond*","Foundation*","BsmtQual*","BsmtCond*","BsmtExposure*","BsmtFinType1*","BsmtFinSF1","BsmtFinType2*","BsmtFinSF2","BsmtUnfSF","TotalBsmtSF","Heating*","HeatingQC*","CentralAir*","Electrical*","X1stFlrSF","X2ndFlrSF","LowQualFinSF","GrLivArea","BsmtFullBath","BsmtHalfBath","FullBath","HalfBath","BedroomAbvGr","KitchenAbvGr","KitchenQual*","TotRmsAbvGrd","Functional*","Fireplaces","FireplaceQu*","GarageType*","GarageYrBlt","GarageFinish*","GarageCars","GarageArea","GarageQual*","GarageCond*","PavedDrive*","WoodDeckSF","OpenPorchSF","EnclosedPorch","X3SsnPorch","ScreenPorch","PoolArea","PoolQC*","Fence*","MiscFeature*","MiscVal","MoSold*","YrSold","SaleType*","SaleCondition*","SalePrice"],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80],[2919,2915,2433,2919,2919,198,2919,2919,2917,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2919,2918,2918,2895,2896,2919,2919,2919,2838,2837,276,2840,2918,2839,2918,2918,2918,2919,2919,2919,2918,2919,2919,2919,2919,2917,2917,2919,2919,2919,2919,2918,2919,2917,2919,1499,2762,2760,2760,2918,2918,2760,2760,2919,2919,2919,2919,2919,2919,2919,10,571,105,2919,2919,2919,2918,2919,1460],[5.267,4.028,69.306,10168.114,1.996,1.394,2.948,3.777,1,4.056,1.054,13.321,3.04,3.002,1.506,4.027,6.089,5.565,1971.313,1984.263,2.396,2.063,10.623,11.335,2.765,102.201,3.397,3.086,2.393,4.577,4.003,5,4.64,441.423,5.678,49.582,560.772,1051.778,2.025,2.534,1.933,4.889,1159.582,336.484,4.694,1500.76,0.43,0.061,1.568,0.38,2.86,1.045,3.511,6.452,6.76,0.597,4.443,3.284,1978.041,2.815,1.767,472.875,3.962,3.971,2.831,93.71,47.487,23.098,2.602,16.062,2.252,3.2,3.588,2.876,50.826,6.213,2007.793,8.491,4.779,180921.196],[4.345,0.659,23.345,7886.996,0.064,0.49,1.41,0.704,0.019,1.604,0.249,5.822,0.874,0.209,1.207,1.913,1.41,1.113,30.291,20.893,0.821,0.539,3.199,3.551,0.608,179.334,0.58,0.372,0.727,0.699,0.295,0,2.058,455.611,1.003,169.206,439.544,440.766,0.246,1.743,0.25,0.41,392.362,428.701,46.397,506.051,0.525,0.246,0.553,0.503,0.823,0.214,0.662,1.569,0.936,0.646,0.766,1.79,25.206,0.82,0.762,215.395,0.253,0.237,0.537,126.527,67.575,64.244,25.188,56.184,35.664,0.789,0.836,0.474,567.402,2.715,1.315,1.595,1.078,79442.503],[5,4,68,9453,2,1,4,4,1,5,1,13,3,3,1,3,6,5,1973,1993,2,2,13,14,3,0,3,3,2,5,4,5,5,368.5,6,0,467,989.5,2,1,2,5,1082,0,0,1444,0,0,2,0,3,1,3,6,7,1,5,2,1979,3,2,480,4,4,3,0,26,0,0,0,0,3,3,3,0,6,2008,9,5,163000],[4.723,4.072,68.435,9499.492,2,1.369,3.059,3.997,1,4.319,1,13.306,3,3,1.161,4.013,6.069,5.47,1974.191,1985.62,2.246,2,10.925,11.645,2.735,61.414,3.34,3.009,2.454,4.521,4,5,4.675,382.444,5.972,1.905,512.459,1034.984,2,2.418,2,5,1127.139,274.21,0,1453.447,0.394,0,1.559,0.34,2.836,1,3.456,6.34,7,0.517,4.531,3.115,1980.693,2.769,1.768,468.42,4,4,3,71.154,33.804,4.94,0,0,0,3.25,3.512,3,0,6.153,2007.741,8.916,5,170783.291],[5.93,0,17.791,3023.021,0,0,0,0,0,0,0,7.413,0,0,0,0,1.483,0,37.065,20.756,0,0,1.483,2.965,0,0,0,0,1.483,1.483,0,0,2.965,546.338,0,0,415.128,350.635,0,0,0,0,348.411,0,0,464.054,0,0,0,0,0,0,0,1.483,0,1.483,1.483,0,31.135,1.483,0,183.842,0,0,0,0,38.548,0,0,0,0,1.483,0,0,0,2.965,1.483,0,0,56338.8],[1,1,21,1300,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1872,1950,1,1,1,1,1,0,2,1,1,3,2,5,2,0,1,0,0,0,1,1,1,1,334,0,0,334,0,0,0,0,0,0,2,2,1,0,2,1,1895,2,0,0,2,2,1,0,0,0,0,0,0,2,2,1,0,1,2006,1,1,34900],[16,5,313,215245,2,2,4,4,2,5,3,25,9,8,5,8,10,9,2010,2010,6,8,15,16,4,1600,5,5,6,6,5,5,7,5644,6,1526,2336,6110,6,5,2,5,5095,2065,1064,5642,3,2,4,2,8,3,5,15,7,4,6,6,2010,4,5,1488,6,6,3,1424,742,1012,508,576,800,4,5,4,17000,12,2010,9,6,755000],[15,4,292,213945,1,1,3,3,1,4,2,24,8,7,4,7,9,8,138,60,5,7,14,15,3,1600,3,4,5,3,3,0,5,5644,5,1526,2336,6110,5,4,1,4,4761,2065,1064,5308,3,2,4,2,8,3,3,13,6,4,4,5,115,2,5,1488,4,4,2,1424,742,1012,508,576,800,2,3,3,17000,11,4,8,5,720100],[0.738,-1.75,1.501,12.816,-15.492,0.431,-0.617,-3.115,53.954,-1.196,4.973,-0.01,2.982,12.054,2.191,0.317,0.197,0.57,-0.599,-0.451,1.553,8.703,-0.731,-0.68,-0.061,2.6,0.786,1.315,0.008,0.252,-0.332,null,-0.168,1.424,-3.397,4.143,0.919,1.162,12.073,0.486,-3.457,-4.792,1.469,0.861,12.083,1.269,0.623,3.928,0.168,0.694,0.326,4.3,0.438,0.758,-4.052,0.733,-0.969,0.747,-0.661,0.353,-0.218,0.241,-2.156,-3.641,-2.978,1.841,2.534,4.002,11.37,3.945,16.89,-0.293,0.673,-3.046,21.936,0.196,0.132,-3.723,-2.787,1.879],[-0.476,5.907,11.259,264.313,238.089,-1.824,-1.589,8.387,2910.002,-0.441,26.508,-1.029,15.666,307.799,3.187,-0.955,0.063,1.472,-0.514,-1.347,0.869,76.672,-0.311,-0.561,-0.14,9.228,0.065,6.269,0.751,-0.363,11.35,null,-1.619,6.884,10.886,18.787,0.399,9.125,167.802,-1.513,9.956,29.348,6.936,-0.425,174.51,4.108,-0.738,14.808,-0.541,-1.035,1.933,19.726,-0.255,1.162,16.203,0.072,1.46,-1.312,-0.383,-1.427,0.234,0.933,20.131,36.746,7.105,6.721,10.907,28.306,149.048,17.73,297.914,-1.504,-0.893,9.413,562.719,-0.457,-1.156,13.598,7.208,6.497],[0.08,0.012,0.473,145.98,0.001,0.035,0.026,0.013,0,0.03,0.005,0.108,0.016,0.004,0.022,0.035,0.026,0.021,0.561,0.387,0.015,0.01,0.059,0.066,0.011,3.332,0.011,0.007,0.013,0.013,0.006,0,0.039,8.434,0.019,3.132,8.137,8.16,0.005,0.032,0.005,0.008,7.262,7.935,0.859,9.366,0.01,0.005,0.01,0.009,0.015,0.004,0.012,0.029,0.017,0.012,0.02,0.034,0.48,0.016,0.014,3.987,0.005,0.005,0.01,2.342,1.251,1.189,0.466,1.04,0.66,0.249,0.035,0.046,10.502,0.05,0.024,0.03,0.02,2079.105]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>vars<\/th>\n      <th>n<\/th>\n      <th>mean<\/th>\n      <th>sd<\/th>\n      <th>median<\/th>\n      <th>trimmed<\/th>\n      <th>mad<\/th>\n      <th>min<\/th>\n      <th>max<\/th>\n      <th>range<\/th>\n      <th>skew<\/th>\n      <th>kurtosis<\/th>\n      <th>se<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 ```
 
 # 3 Exploring variables
@@ -353,11 +353,11 @@ skewness(data$SalePrice, na.rm = T)
 ```r
 # using data from now
 data <- data %>% mutate(log_SalePrice = log(SalePrice))
-skewness(data$log_SalePrice, na.rm= T)
+skew(data$log_SalePrice, na.rm= T)
 ```
 
 ```
-## [1] 0.1212104
+## [1] 0.1210859
 ```
 
 
@@ -414,7 +414,7 @@ ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
    coord_flip()
 ```
 
-<img src="house_price_files/figure-html/unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;" />
+<img src="house_price_files/figure-html/unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" />
 
 - The most important variables are Neighborhood, GrLivArea and OverallQual. That makes a lot of sense to me.
 
@@ -434,7 +434,7 @@ ggplot(data=data_fullPrice, aes(x = reorder(Neighborhood,log_SalePrice, FUN = me
   geom_hline(yintercept= median(data_fullPrice$log_SalePrice), linetype="dashed", color = "red") # median log_SalePrice
 ```
 
-<img src="house_price_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+<img src="house_price_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 
 **Log_SalePrice vs. OverallQual (r = 0.81)**
@@ -449,7 +449,7 @@ ggplot(data=data_fullPrice, aes(x=factor(OverallQual), y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="house_price_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="house_price_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" />
 
 Graph shows the positive linear relationship between Log_SalePrice with Overal Quality. There are a few extreme points below housed with grade 3,4,7 and 10, and 1 point above house with grade 4.
 
@@ -469,7 +469,7 @@ ggplot(data=data_fullPrice, aes(x=GrLivArea, y=log_SalePrice)) +
   theme_bw()
 ```
 
-<img src="house_price_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="house_price_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" />
 
 ### 3.2.3 Correlation matrix
 
@@ -729,7 +729,7 @@ data <- data[, !(names(data) %in% high_corr_vars)]
 
 ### 5.2 Removing outliers
 
-In order to detect outliers, I used Cook's distance, a statistical measure that identifies influential observations in a regression analysis. As a rule of thumb, obs with a Cook's distance value greater than 1 should be removed. To assess the level of influence of these observations, a commonly used threshold is 4 times the mean Cook's distance. In this case, three points (822, 524, and 826) were identified as having an outstanding level of influence
+In order to detect outliers, I used Cook's distance, a statistical measure that identifies influential observations in a regression analysis. As a rule of thumb, obs with a Cook's distance value greater than 1 should be removed. To assess the level of influence of these observations, a commonly used threshold is 4 times the mean Cook's distance. In this case, the threshold of 0.5 Cook's distance is used. As a result, three points (822, 524, and 826) were identified as having an outstanding level of influence.
 
 
 ```r
@@ -746,10 +746,10 @@ abline(h = 4*mean(cooksd, na.rm = T), col = "red")  # Influential level cut off
 text(x = 1:length(cooksd)+1, y = cooksd, labels = ifelse(cooksd > 0.5,names(cooksd),""), col= "red") # add labels for threshold at 0.5
 ```
 
-![](house_price_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](house_price_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
 
 
-These 3 outliers having certain unusual values for important predictors. # 822 had small LotArea and GrLivArea, low OverallQua, located in low value Neighborhood, and very high Age but had a log_SalePrice value that was close to the mean. Meanwhile # 524 had very large LotArea & GrLivArea,  and # 826 was located in high_end Neighborhood,both had high OverallQual but both low values for log_SalePrice.
+These 3 outliers having certain unusual values for important predictors. # 822 had small LotArea and GrLivArea, low OverallQua, located in low value Neighborhood, and very high Age but had a log_SalePrice value that was close to the mean. Meanwhile # 524 had very large LotArea & GrLivArea,  and # 826 was located in high_end Neighborhood, both had high OverallQual but both low values for log_SalePrice.
 
 
 ```r
@@ -779,22 +779,254 @@ data <- data[-c(822,524,826),]
 ```r
 vars_numNames <- names(vars_num)
 
-vars_numNames <- vars_numNames[!(vars_numNames %in% c("MSSubClass", "MoSold", "YrSold"))]
+vars_numNames <- vars_numNames[!(vars_numNames %in% c("MSSubClass",  "MoSold", "YrSold", "log_SalePrice", "OverallQual", "OverallCond"))]
 
 vars_numNames <- append(vars_numNames, c("Age", "Bathrooms", "PorchArea"))
 
 data_varNum <- data[, names(data) %in% vars_numNames]
 
 data_varFac <- data[,!(names(data) %in% vars_numNames)]
+data_varFac <- data_varFac[, names(data_varFac) != "log_SalePrice"]
 
-cat("There are", length(data_varNum), "numeric variable, ans", length(data_varFac)," factor variables")
+cat("There are", length(data_varNum), "numeric variable, and", length(data_varFac)," factor variables")
 ```
 
 ```
-## There are 31 numeric variable, ans 49  factor variables
+## There are 30 numeric variable, and 49  factor variables
 ```
-#### 5.3.2 Centre and Scale numeric predictors
+
+#### 5.3.1 Fixing skewness and normalizing the numeric predictors
+
+In order to fix skewness, I'm going to log all numeric predictors that have absolute skewness > 0.8.
+
+
+```r
+for (i in 1:ncol(data_varNum)) {
+  if (abs(skew(data_varNum[,i])) > 0.8){
+              data_varNum[,i] <- log(data_varNum[,i] + 1) # log + 1 to avoid 0 values
+  }
+}
+```
+
+
+```r
+pre_varNum <- preProcess(data_varNum, method = c("center", "scale"))
+print(pre_varNum)
+```
+
+```
+## Created from 2916 samples and 30 variables
+## 
+## Pre-processing:
+##   - centered (30)
+##   - ignored (0)
+##   - scaled (30)
+```
+
+
+```r
+data_norm <- predict(pre_varNum, data_varNum)
+dim(data_norm)
+```
+
+```
+## [1] 2916   30
+```
+
+
 #### 5.3.2 One hot encoding the categorical predictors
-#### 5.3.3 Split training data into train and test sets
+
+One hot encoding is a common technique for encoding categorical variables as numeric variables in machine learning. I'm going to use model.matrix() to perform one hot encoding for the dataset.
+
+```r
+data_dummies <- as.data.frame(model.matrix (~.-1, data_varFac)) # use all variables in the data except for intercept
+dim(data_dummies)
+```
+
+```
+## [1] 2916  274
+```
+#### Removing levels with few obs in the data
+
+
+```r
+# Check levels that has a few obs (less than 10) in the train set
+sparse_train <- which(colSums(data_dummies[1:nrow(data[!is.na(data$log_SalePrice),]),]) < 10)
+colnames(data_dummies[sparse_train])
+```
+
+```
+##  [1] "MSSubClass40"         "MSSubClass150"        "UtilitiesNoSeWa"     
+##  [4] "LotConfigFR3"         "NeighborhoodBlueste"  "NeighborhoodNPkVill" 
+##  [7] "Condition1PosA"       "Condition1RRNe"       "Condition1RRNn"      
+## [10] "Condition2Feedr"      "Condition2PosA"       "Condition2PosN"      
+## [13] "Condition2RRAe"       "Condition2RRAn"       "Condition2RRNn"      
+## [16] "HouseStyle2.5Fin"     "OverallQual.Q"        "OverallQual.C"       
+## [19] "OverallQual^6"        "OverallQual^9"        "OverallCond.Q"       
+## [22] "OverallCond.C"        "OverallCond^5"        "OverallCond^6"       
+## [25] "OverallCond^9"        "RoofStyleMansard"     "RoofStyleShed"       
+## [28] "RoofMatlMembran"      "RoofMatlMetal"        "RoofMatlRoll"        
+## [31] "RoofMatlWdShake"      "RoofMatlWdShngl"      "Exterior1stAsphShn"  
+## [34] "Exterior1stBrkComm"   "Exterior1stCBlock"    "Exterior1stImStucc"  
+## [37] "Exterior1stStone"     "Exterior2ndAsphShn"   "Exterior2ndBrk Cmn"  
+## [40] "Exterior2ndCBlock"    "Exterior2ndOther"     "Exterior2ndStone"    
+## [43] "ExterQual.Q"          "ExterQual.C"          "ExterCond.Q"         
+## [46] "ExterCond.C"          "FoundationStone"      "FoundationWood"      
+## [49] "BsmtQual.Q"           "BsmtQual.C"           "BsmtQual^4"          
+## [52] "BsmtCond.Q"           "BsmtCond.C"           "BsmtExposure.L"      
+## [55] "BsmtExposure.C"       "BsmtExposure^5"       "BsmtFinType1^4"      
+## [58] "BsmtFinType1^6"       "HeatingGrav"          "HeatingOthW"         
+## [61] "HeatingWall"          "HeatingQCPo"          "KitchenQual.Q"       
+## [64] "KitchenQual.C"        "FunctionalMaj2"       "FunctionalSev"       
+## [67] "FireplaceQu.L"        "FireplaceQu.C"        "GarageTypeCarPort"   
+## [70] "GarageFinish.Q"       "GarageQual.Q"         "GarageQual.C"        
+## [73] "PoolQC.L"             "PoolQC.C"             "Fence.L"             
+## [76] "Fence.C"              "MiscFeatureOthr"      "MiscFeatureTenC"     
+## [79] "SaleTypeCon"          "SaleTypeConLD"        "SaleTypeConLI"       
+## [82] "SaleTypeConLw"        "SaleTypeCWD"          "SaleTypeOth"         
+## [85] "SaleConditionAdjLand"
+```
+
+
+```r
+# Removing levels that has a few obs in the train set
+data_dummies <- data_dummies[, -sparse_train]
+dim(data_dummies)
+```
+
+```
+## [1] 2916  189
+```
+
+
+
+```r
+# Check levels that has a few obs (less than 10) in the test set
+sparse_test <- which(colSums(data_dummies[(nrow(data[!is.na(data$log_SalePrice),]) +1 ): nrow(data),]) < 10)
+colnames(data_dummies[sparse_test])
+```
+
+```
+##  [1] "MSSubClass45"       "MSSubClass75"       "MSSubClass180"     
+##  [4] "LotShapeIR3"        "LandSlopeSev"       "HouseStyle1.5Unf"  
+##  [7] "OverallCond.L"      "Exterior2ndImStucc" "HeatingGasW"       
+## [10] "FireplaceQu^5"
+```
+
+```r
+# Removing levels that has a few obs in the test set
+data_dummies <- data_dummies[, -sparse_test]
+dim(data_dummies)
+```
+
+```
+## [1] 2916  179
+```
+In total, 95 one hot encoded predictors with a few obs have been removed.
+
+Now getting the ready data for modelling.
+
+
+```r
+data_combo <- cbind(data_dummies, data_norm)
+
+data_combo$log_SalePrice <- data$log_SalePrice
+```
+
+#### 5.3.3 Split training data into train and test sets.
+
+Now it's time to split the combined dataset above into train set and test set again
+
+
+```r
+train1 <- data_combo[!is.na(data$log_SalePrice),]
+test1 <- data_combo[is.na(data$log_SalePrice),]
+```
+
 ## 6. Modelling
+
+
+```r
+# Split the train1 data set into train2 and test2 subsets
+set.seed(20231)
+trainIndex <- createDataPartition(train1$log_SalePrice, p = 0.8, list = FALSE)
+train2 <- train1[trainIndex, ]
+test2 <- train1[-trainIndex, ]
+```
+
+
+```r
+# Define the tuning grid for XGBoost
+xgb_grid <- expand.grid(
+            nrounds = 400,
+            max_depth = c(3,4,5),
+            eta = seq(0.05,0.1, by= 0.025),
+            gamma = 0,
+            colsample_bytree = 1,
+            min_child_weight = 4,
+            subsample = 1)
+
+# Train an XGBoost model on the train2 subset
+set.seed(12345)
+xgb_model <- train(log_SalePrice ~ .,
+                   data = train2,
+                   method = "xgbTree",
+                   trControl = trainControl(method = "cv", number = 5),
+                   tuneGrid = xgb_grid)
+
+xgb_model$bestTune
+```
+
+```
+##   nrounds max_depth  eta gamma colsample_bytree min_child_weight subsample
+## 2     400         4 0.05     0                1                4         1
+```
+
+
+```r
+# Evaluate the performance of the XGBoost model on the test2 subset
+xgb_pred <- predict(xgb_model, newdata = test2)
+xgb_rmse <- sqrt(mean((xgb_pred - test2$log_SalePrice)^2))
+xgb_rmse
+```
+
+```
+## [1] 0.1207274
+```
+
+```r
+# Use the trained XGBoost model to predict the house prices in the test1 data set
+pred_test <- predict(xgb_model, newdata = test1)
+
+# Apply inverse log transformation to the predicted house prices
+pred_SalePrice<- exp(pred_test)
+```
+
+
+```r
+# Create a data frame with Id and predicted SalePrice columns
+pred_df <- data.frame(Id =  test_labels, SalePrice = pred_SalePrice)
+head(pred_df)
+```
+
+```
+##     Id SalePrice
+## 1 1461  120875.4
+## 2 1462  160283.0
+## 3 1463  182510.3
+## 4 1464  190364.8
+## 5 1465  184605.9
+## 6 1466  172300.7
+```
+
+
+```r
+# Write the data frame to a CSV file
+write.csv(pred_df, file = "predicted_sale_prices.csv", row.names = FALSE)
+```
+
+
 ## 7. Conclusion
+
+My submission for the Kaggle competition using XGBoost achieved a score of 0.13097, which I was satisfied with for my first attempt, even it is way to far to reach top 5 :D. However, I learned that there are other methods that could be used to improve the score, such as trying different feature engineering techniques and experimenting with model parameters or other algorithms like Lasso or glmnet. Overall, this experience has given me knowledge and insights on data wrangling and a valuable introduction to using XGBoost for machine learning projects and has motivated me to continue exploring different methods to improve my performance.
+
