@@ -1,7 +1,7 @@
 ---
 title: "Titanic Survival Prediction"
 subtitle: "Kaggle competitions"
-excerpt: "Titanic ML competition on Kaggle, use machine learning to create a model that predicts which passengers survived the Titanic shipwreck."
+excerpt: "Using machine learning to create a model that predicts which passengers survived the Titanic shipwreck."
 date: "2023-04-05"
 author: "Hana Lê"
 featured: true
@@ -11,6 +11,7 @@ tags:
 - Kaggle Competition
 categories:
 - EDA
+- Machine learning
 # layout options: single or single-sidebar
 layout: single
 links:
