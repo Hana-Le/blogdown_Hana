@@ -17,6 +17,7 @@ output:
 <link href="/rmarkdown-libs/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
 <script src="/rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
 
+
 # 1. Introduction
 
 The Titanic sinking is famous - it was a new ship that people believed couldn’t sink, but it hit an iceberg on April 15, 1912, and sank. Sadly, not everyone had a lifeboat, and 1502 people died out of 2224 passengers and crew. Although chance played a role, it has been believed that some groups had a better chance of surviving.

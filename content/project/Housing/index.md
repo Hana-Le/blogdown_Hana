@@ -329,7 +329,7 @@ df <- df %>%
 ```r
 df_table <- describe(df)
 df_table %>% round(digits = 3) %>% 
-datatable(options = list(pageLength = 10),width = "50%") 
+DT::datatable(options = list(pageLength = 10),width = "50%") 
 ```
 
 ```{=html}
