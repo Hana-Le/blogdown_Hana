@@ -10,7 +10,7 @@ tags:
 - R
 - Kaggle Competition
 categories:
-- Machine learning
+- EDA
 # layout options: single or single-sidebar
 layout: single
 links:
