@@ -10,6 +10,7 @@ tags:
 - R
 - Kaggle Competition
 categories:
+- EDA
 - Linear regression
 - Machine learning
 # layout options: single or single-sidebar
@@ -52,7 +53,7 @@ This project is based on the Kaggle competition ["House Prices: Advanced Regress
 
 ```r
 # Loading R packages
-packages <- c("tidyverse", "psych","DT", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor","caret", "reshape2", "xgboost") 
+packages <- c("tidyverse", "psych","DT", "htmlTable", "gridExtra", "GGally", "corrplot", "ggcorrplot", "naniar", "visdat", "moments", "janitor","caret", "reshape2", "xgboost") 
 sapply(packages, require, character = TRUE)
 ```
 
