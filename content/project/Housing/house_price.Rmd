@@ -169,10 +169,10 @@ df <- df %>%
 
 ## 2.5 Descriptive statistics
 
-```{r, warning=FALSE, message=FALSE,out.width= "60%"}
+```{r}
 df_table <- describe(df)
 df_table %>% round(digits = 3) %>% 
-DT::datatable(options = list(pageLength = 10)) 
+   DT::datatable(options = list(pageLength = 10)) 
 ```
 
 # 3 Exploring variables
