@@ -1,0 +1,167 @@
+---
+title: "Titanic Survival"
+author: "Hana Le"
+date: "`r Sys.Date()`"
+output: 
+ html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# 1. Introduction
+
+The Titanic sinking is famous - it was a new ship that people believed couldn't sink, but it hit an iceberg on April 15, 1912, and sank. Sadly, not everyone had a lifeboat, and 1502 people died out of 2224 passengers and crew. Although chance played a role, it has been believed that some groups had a better chance of surviving.
+
+This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc) and evaluate the performance of the model using the test data. It looks like a simple project but I aim to learn more about ML and also gain some more knowledge thru analysing the data.
+
+# 2. Overview the data
+## 2.1 Loading packages and reading the data
+
+```{r housing, message = FALSE, results='hide'}
+# Loading R packages
+packages <- c("tidyverse","Amelia", "psych","DT", "htmlTable","mice","ranger", "janitor", "randomForest") 
+sapply(packages, require, character = TRUE)
+```
+
+
+```{r}
+# Reading data
+train <- read.csv("titanic_data/train.csv")
+test <- read.csv("titanic_data/test.csv")
+```
+
+
+## 2.2 Data size
+The Titanic train data set has 891 obs and 12 variables with the response variable Survived. The Titanic test data set has 418 obs and 11 variables.
+
+```{r}
+dim(train); dim(test)
+```
+
+```{r combine 2 datasets}
+# Combine 2 data sets to see the structure, and for cleaning & feature engineering later.
+test$Survived <- NA
+data <- rbind(train, test)
+dim(data) 
+```
+The data now has 12 columns consisting of 11 predictors and the response variable Survived.
+
+## 2.3 Data Structure
+
+```{r}
+str(data)
+```
+
+Some categorical variables should be in factor form:
+
+```{r}
+var_cat <- c("Survived", "Pclass","Sex", "Embarked")
+data[, var_cat] <- data.frame(lapply(data[, var_cat], as.factor))
+```
+
+
+## 2.3 Missingness of the data
+
+It seems from the data structure that missing values are not only represented as 'NA', but also as empty.
+
+```{r}
+sort(colSums(is.na(data)| data == ""), decreasing = T)
+```
+
+Out of a total of 1309 records, Cabin is the variable with the highest number of missing values, with 1014 records (77.5%) missing. Age is the second variable with the most missing values, with 263 records (20.1%) missing. Embarked has only 2 missing values, while Fare has only 1 missing value.
+
+```{r}
+data[data ==""] <- NA
+
+missmap(data[,colnames(data) != "Survived"])
+```
+
+
+## 2.4 Imputing missing data
+
+
+```{r}
+# I was wondering if there is any case where Cabin is exclusively for the 1st class passengers?
+# Have look on Cabin
+
+# data %>% tabyl(Pclass, Cabin)
+
+# It appears that passengers who had cabin information were predominantly in the 1st class. 
+# However, there were still 67 1st-class passengers who had missing values for the cabin,
+# making it difficult to draw conclusions. 
+# I decided to drop the cabin variable from the analysis
+
+data$Cabin <- NULL
+```
+
+
+
+```{r}
+# Imputing missing values for Embarked
+data[is.na(data$Embarked), ]
+data %>% tabyl(Embarked, Pclass)
+#names(sort(table(data$Embarked), decreasing = T))[1]
+# It seems likely the 2 passengers who had Embarked info missing embarked from S = Southampton.
+data$Embarked[is.na(data$Embarked)] <- "S"
+```
+
+```{r}
+#Imputing the missing value for Fare
+data[is.na(data$Fare),]
+data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarded == "S", na.rm = T)
+```
+
+
+```{r, warning=FALSE}
+# Imputing missing values for Age
+# I'm going to use mice package for Age
+# select only the columns needed for imputing Age
+age_data <- data[, c('Age', 'Pclass', 'Sex', 'SibSp', 'Parch', 'Fare', 'Embarked')]
+
+# impute missing values using MICE with the "random forest" method
+
+age_mice <- mice(age_data, method = "rf")
+age_imputed <- complete(age_mice)
+data$Age <- age_imputed$Age
+```
+
+
+```{r}
+# Checking missing values
+colSums(is.na(data[,colnames(data) != "Survived"]))
+```
+
+## 2.5 Descriptive statistics
+
+
+```{r}
+data_table <- describe(data)
+data_table %>% round(digits = 3) %>%
+  DT::datatable(options = list(pageLength = 10)) 
+```
+
+
+## 3. Feature Engineering
+Passenger titles provide some information about their social status, gender, and possibly age. These titles were included in the name of each passenger so we can extract them out.
+
+```{r}
+data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
+data$Title <- sub(' ', '', data$Title)
+data %>% tabyl(Title, Sex) 
+```
+
+```{r}
+data$Title[data$Title %in% c("Mlle", "Ms")] <- "Miss"
+data$Title[data$Title == "Mme"] <- "Mrs"
+data$Title[data$Title %in% c("the Countess", "Dona", "Lady", "Jonkheer")] <- "Noble"
+data$Title[data$Title %in% c("Capt","Col", "Dr", "Rev", "Don", "Major", "Sir")] <- "Officer"
+data %>% tabyl(Title, Sex) 
+
+```
+
+## 4. Exploring variables
+## 5. Data preparation for modelling
+## 6. Modelling
+## 7. Conclusion
