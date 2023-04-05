@@ -43,9 +43,10 @@ links:
 
 # 1. Introduction
 
-The Titanic sinking is famous - it was a new ship that people believed couldn’t sink, but it hit an iceberg on April 15, 1912, and sank. Sadly, not everyone had a lifeboat, and 1502 people died out of 2224 passengers and crew. Although chance played a role, it has been believed that some groups had a better chance of surviving.
 
-This project uses data from the Kaggle competition [“Titanic - Machine Learning from Disater”](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc) and evaluate the performance of the model using the test data. It looks like a simple project but I aim to learn more about ML and also gain some more knowledge thru analysing the data.
+The Titanic sank in 1912 after hitting an iceberg. Many people thought it was unsinkable, but it wasn't. Sadly, most of the passengers and crew didn't have a lifeboat, and many people died. Some groups had a better chance of surviving than others.
+
+This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc) and evaluate the performance of the model using the test data. It looks like a very simple project but I aim to learn more about exploratory data analysis thru analysing the dataset.
 
 # 2. Overview the data
 
