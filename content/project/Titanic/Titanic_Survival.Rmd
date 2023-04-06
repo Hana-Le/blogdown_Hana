@@ -12,16 +12,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 # 1. Introduction
 
-The Titanic sank in 1912 after hitting an iceberg. Many people thought it was unsinkable, but it wasn't. Sadly, most of the passengers and crew didn't have a lifeboat, and many people died. Some groups had a better chance of surviving than others.
+This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck, to  answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc). 
 
-This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc) and evaluate the performance of the model using the test data. It looks like a very simple project but I aim to learn more about exploratory data analysis thru analysing the dataset.
+It seems like a straightforward project that is quite popular among beginners in data science :smiley:, but my objective is to gain more experience working with this type of dataset.
 
 # 2. Overview the data
 ## 2.1 Loading packages and reading the data
 
 ```{r housing, message = FALSE, results='hide'}
 # Loading R packages
-packages <- c("tidyverse","Amelia", "psych","DT", "htmlTable","mice","ranger", "janitor", "randomForest") 
+packages <- c("tidyverse","Amelia", "psych","DT","mice","ranger", "janitor", "stringr","ggplot2", "GGally", "randomForest") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -83,6 +83,24 @@ missmap(data[,colnames(data) != "Survived"])
 
 
 ```{r}
+# Imputing missing values for Embarked
+data[is.na(data$Embarked), ]
+data %>% tabyl(Embarked, Pclass)
+#names(sort(table(data$Embarked), decreasing = T))[1]
+# These 2 passengers were in 1st class, in the same Cabin
+# It seems likely the 2 passengers embarked from S = Southampton.
+data$Embarked[is.na(data$Embarked)] <- "S"
+```
+
+```{r}
+# Imputing the missing value for Fare
+data[is.na(data$Fare),]
+## the passenger was in Pclass 3 and embarked from "S"
+data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarked == "S", na.rm = T)
+```
+
+
+```{r}
 # I was wondering if there is any case where Cabin is exclusively for the 1st class passengers?
 # Have look on Cabin
 
@@ -94,23 +112,6 @@ missmap(data[,colnames(data) != "Survived"])
 # I decided to drop the cabin variable from the analysis
 
 data$Cabin <- NULL
-```
-
-
-
-```{r}
-# Imputing missing values for Embarked
-data[is.na(data$Embarked), ]
-data %>% tabyl(Embarked, Pclass)
-#names(sort(table(data$Embarked), decreasing = T))[1]
-# It seems likely the 2 passengers who had Embarked info missing embarked from S = Southampton.
-data$Embarked[is.na(data$Embarked)] <- "S"
-```
-
-```{r}
-#Imputing the missing value for Fare
-data[is.na(data$Fare),]
-data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarded == "S", na.rm = T)
 ```
 
 
@@ -142,13 +143,23 @@ data_table %>% round(digits = 3) %>%
   DT::datatable(options = list(pageLength = 10)) 
 ```
 
+## 3. Exploring variables
+### 3.1 Survived
+
+```{r}
+tabyl(data$Survived)
+```
+Among the 1309 passengers in the Titanic dataset, 342 survived and a target of 418 survival outcomes was set for the test set.
+
+
 
 ## 3. Feature Engineering
 Passenger titles provide some information about their social status, gender, and possibly age. These titles were included in the name of each passenger so we can extract them out.
 
 ```{r}
-data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
-data$Title <- sub(' ', '', data$Title)
+data$Title <- str_extract(data$Name, "(?<=\\,\\s)[A-Za-z]+")
+#data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
+#data$Title <- sub(' ', '', data$Title)
 data %>% tabyl(Title, Sex) 
 ```
 
@@ -161,7 +172,58 @@ data %>% tabyl(Title, Sex)
 
 ```
 
-## 4. Exploring variables
+```{r}
+
+
+```
+
+### 4.1 Exploring predictors of Survived
+
+### 4.1.1 Finding important predictors
+
+```{r}
+# Split data into training and testing sets
+set.seed(1234)
+train_index <- sample(nrow(titanic), round(nrow(titanic)*0.7), replace = FALSE)
+train_data <- titanic[train_index, ]
+test_data <- titanic[-train_index, ]
+
+# Train random forest model
+rf_model <- randomForest(Survived ~ ., data = train_data, ntree = 500, importance = TRUE)
+
+# Compute variable importance measures
+vi <- importance(rf_model)
+
+# Create a data frame with the variable names and importance measures
+vi_df <- data.frame(variable = names(vi), importance = vi)
+
+# Sort the data frame by importance measures in descending order
+vi_df <- vi_df[order(-vi_df$importance),]
+
+# Create a barplot with ggplot
+library(ggplot2)
+ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(x = "Variables", y = "Importance", title = "Variable Importance Plot") +
+  theme_bw() +
+  coord_flip()
+```
+
+
+
+### 4.1.2 Visualising relation of Survided with the most important variables.
+
+```{r}
+# Subset the dataset to include only the variables of interest
+set_con <- subset(data[!is.na(data$Survived),], select = c("Survived", "Age", "Fare"))
+
+# Create scatter plot matrix with ggally
+ggpairs(sub_con, aes(color = Survived, alpha = 0.7),
+        lower = list(combo = "count"))
+```
+
+The median age of the survivors appears to be slightly lower than that of non-survivors, indicating that younger individuals had a higher chance of survival. On the other hand, the median fare of the surviving passengers is noticeably higher, suggesting a potential correlation between fare paid and survival rate.
+
 ## 5. Data preparation for modelling
 ## 6. Modelling
 ## 7. Conclusion

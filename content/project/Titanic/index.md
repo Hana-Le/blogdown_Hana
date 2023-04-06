@@ -11,6 +11,7 @@ tags:
 - Kaggle Competition
 categories:
 - EDA
+- Binary Classification 
 - Machine learning
 # layout options: single or single-sidebar
 layout: single
@@ -44,10 +45,9 @@ links:
 
 # 1. Introduction
 
+This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck, to  answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc). 
 
-The Titanic sank in 1912 after hitting an iceberg. Many people thought it was unsinkable, but it wasn't. Sadly, most of the passengers and crew didn't have a lifeboat, and many people died. Some groups had a better chance of surviving than others.
-
-This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck, to  answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc). It looks like a very simple project but I aim to learn more about exploratory data analysis thru analysing the dataset.
+It seems like a straightforward project that is quite popular among beginners in data science :smiley:, but my objective is to gain more experience working with this type of dataset.
 
 # 2. Overview the data
 
