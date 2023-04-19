@@ -238,6 +238,8 @@ mosaic(~ age_cat + Survived, data = data[!is.na(data$Survived),], gp = shading_m
 ```
  
 The association is significant (p-value < 0.05). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
+
+
 ### 3.2.3 Sex
 
 
@@ -258,6 +260,9 @@ mosaic(~ Sex + Survived, data = data[!is.na(data$Survived),], gp = shading_max, 
 Female passengers had a noticeably higher rate of survival when compared to male passengers( p-value < 0.001).
 
 
+### 3.2.4 Title
+
+
 ```{r, warning=FALSE}
 data %>% 
   filter(!is.na(Survived)) %>%
@@ -272,6 +277,9 @@ mosaic(~ Title + Survived, data = data[!is.na(data$Survived),], gp = shading_max
 
 The title that a passenger held had an impact on their odds of survival (p-value < 0.001). In line with the previous observation, it appears that women with titles of Miss or Mrs had a higher likelihood of surviving. Additionally, it is noteworthy that passengers with titles of Master or Noble had a better chance of survival when compared to those with titles of Mr or Officer.
 
+### 3.2.4 Pclass
+
+.....
 
 ## 4. Data preparation for modelling
 ## 5. Modelling
