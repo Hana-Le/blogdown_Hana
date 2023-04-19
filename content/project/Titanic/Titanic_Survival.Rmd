@@ -135,7 +135,7 @@ data$Cabin <- NULL
 age_data <- data[, c('Age', 'Pclass', 'Sex', 'SibSp', 'Parch', 'Fare', 'Embarked')]
 
 # impute missing values using MICE with the "random forest" method
-
+set.seed(1234)
 age_mice <- mice(age_data, method = "rf")
 age_imputed <- complete(age_mice)
 data$Age <- age_imputed$Age
