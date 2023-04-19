@@ -206,13 +206,14 @@ ggpairs(sub_con, aes(color = Survived, alpha = 0.7),
         lower = list(combo = "count"))
 ```
 
-The median age of the survivors appears to be slightly lower than that of non-survivors, indicating that younger individuals had a higher chance of survival. On the other hand, the median fare of the surviving passengers is noticeably higher, suggesting a potential correlation between fare paid and survival rate.
+The median age of the survivors appears to be slightly higher than that of non-survivors, indicating that older individuals had a higher chance of survival. On the other hand, the median fare of the surviving passengers is noticeably higher, suggesting a potential correlation between fare paid and survival rate.
 
 
 ### 3.2.2 Age categories
 
-I read somewhere that priority to secure a place on lifeboats was given to "Women and children first". So Sex and Age would be likely predicting the odds.
-While the correlation between Age and Survived is not very clear, the association between age_cat and Survived is significant (p-value = 0.02). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
+I read somewhere that priority to secure a place on lifeboats was given to "Women and children first". So younger passenger should have better surviving odds.
+
+I'm going to create age_cate to check is there was an association between age_cat and Survived. 
 
 ```{r}
 data$age_cat <- cut(data$Age, breaks = c(0,18,40,60,95),
@@ -236,6 +237,7 @@ data %>%
 mosaic(~ age_cat + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels = 0)
 ```
  
+The association is significant (p-value = 0.02). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
 ### 3.2.3 Sex
 
 
