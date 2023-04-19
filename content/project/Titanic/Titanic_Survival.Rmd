@@ -237,7 +237,7 @@ data %>%
 mosaic(~ age_cat + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels = 0)
 ```
  
-The association is significant (p-value = 0.02). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
+The association is significant (p-value < 0.05). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
 ### 3.2.3 Sex
 
 
