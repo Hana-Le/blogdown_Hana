@@ -21,7 +21,7 @@ It seems like a straightforward project that is quite popular among beginners in
 
 ```{r housing, message = FALSE, results='hide'}
 # Loading R packages
-packages <- c("tidyverse","Amelia", "psych","DT","mice","ranger", "janitor", "stringr","ggplot2", "GGally", "randomForest") 
+packages <- c("tidyverse","Amelia", "psych","DT","mice","ranger", "janitor","vcd","kableExtra", "stringr","ggplot2", "GGally", "randomForest") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -67,14 +67,14 @@ data[, var_cat] <- data.frame(lapply(data[, var_cat], as.factor))
 It seems from the data structure that missing values are not only represented as 'NA', but also as empty.
 
 ```{r}
-sort(colSums(is.na(data)| data == ""), decreasing = T)
+sort(colSums(is.na(data)| data == ""), decreasing = T) 
 ```
 
 Out of a total of 1309 records, Cabin is the variable with the highest number of missing values, with 1014 records (77.5%) missing. Age is the second variable with the most missing values, with 263 records (20.1%) missing. Embarked has only 2 missing values, while Fare has only 1 missing value.
 
 ```{r}
+# Visualization of missing values 
 data[data ==""] <- NA
-
 missmap(data[,colnames(data) != "Survived"])
 ```
 
@@ -85,7 +85,9 @@ missmap(data[,colnames(data) != "Survived"])
 ```{r}
 # Imputing missing values for Embarked
 data[is.na(data$Embarked), ]
-data %>% tabyl(Embarked, Pclass)
+data %>% tabyl(Embarked, Pclass) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 #names(sort(table(data$Embarked), decreasing = T))[1]
 # These 2 passengers were in 1st class, in the same Cabin
 # It seems likely the 2 passengers embarked from S = Southampton.
@@ -104,13 +106,24 @@ data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarke
 # I was wondering if there is any case where Cabin is exclusively for the 1st class passengers?
 # Have look on Cabin
 
-# data %>% tabyl(Pclass, Cabin)
+#data %>% tabyl(Pclass, Cabin)
+```
 
-# It appears that passengers who had cabin information were predominantly in the 1st class. 
-# However, there were still 67 1st-class passengers who had missing values for the cabin,
-# making it difficult to draw conclusions. 
-# I decided to drop the cabin variable from the analysis
+It appears that passengers who had cabin information were predominantly in the 1st class.  These cabins mostly contain letters from A to E. 
 
+According to ['Wikipedia'](https://en.wikipedia.org/wiki/First-class_facilities_of_the_Titanic) and ['Titanic fandom'](https://titanic.fandom.com/wiki/Third_Class_cabins), first-class facilities and accommodation was located on the upper decks within the superstructure of the Titanic, which  occupied almost the entirety of B and C Decks, but also large sections forward on A, D and E-Decks. While the third-class cabins were  located on F Deck, with a few on the forward G Deck. Rather than numbered by the deck they were on, these cabins were numbered separately. This area was the first to flood during the sinking, because of their location in the lowest decks in the bow. It is possible that the location of the accommodation would have been affecting the chance of survival of passengers on the ship.
+
+It is quite obvious to see significant association between Pclass with Cabin labeled from A to E by using Chi-Squared test in this case.
+
+```{r}
+data$Cabin2 <- ifelse(is.na(data$Cabin), 0, 1)
+Pclass_Cabin2 <- table(data$Pclass, data$Cabin2)
+chisq.test(Pclass_Cabin2)
+```
+ So I decided to drop the cabin variable from the analysis
+
+
+```{r}
 data$Cabin <- NULL
 ```
 
@@ -147,75 +160,46 @@ data_table %>% round(digits = 3) %>%
 ### 3.1 Survived
 
 ```{r}
-tabyl(data$Survived)
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Survived) %>%
+  adorn_pct_formatting() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
-Among the 1309 passengers in the Titanic dataset, 342 survived and a target of 418 survival outcomes was set for the test set.
+Out of the 891 passengers in the training set, 342 survived, which corresponds to a survival rate of approximately 38.4%.
 
+### 3.2 Exploring potential predcitors of Survived
 
-
-## 3. Feature Engineering
-Passenger titles provide some information about their social status, gender, and possibly age. These titles were included in the name of each passenger so we can extract them out.
+Passenger titles provide some information about their social status, gender, and possibly age which could be strong predictors for survival. These titles were included in the name of each passenger so we can extract them out.
 
 ```{r}
-data$Title <- str_extract(data$Name, "(?<=\\,\\s)[A-Za-z]+")
-#data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
-#data$Title <- sub(' ', '', data$Title)
-data %>% tabyl(Title, Sex) 
-```
-
-```{r}
-data$Title[data$Title %in% c("Mlle", "Ms")] <- "Miss"
-data$Title[data$Title == "Mme"] <- "Mrs"
-data$Title[data$Title %in% c("the Countess", "Dona", "Lady", "Jonkheer")] <- "Noble"
-data$Title[data$Title %in% c("Capt","Col", "Dr", "Rev", "Don", "Major", "Sir")] <- "Officer"
-data %>% tabyl(Title, Sex) 
-
+data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
+data$Title <- sub(' ', '', data$Title)
+data %>% tabyl(Title, Sex) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
 
 ```{r}
+data <- data %>% 
+  mutate(Title = case_when(
+    Title %in% c("Mlle", "Ms") ~ "Miss",
+    Title == "Mme" ~ "Mrs",
+    Title %in% c("the Countess", "Dona", "Lady", "Jonkheer") ~ "Noble",
+    Title %in% c("Capt","Col", "Dr", "Rev", "Don", "Major", "Sir") ~ "Officer",
+    TRUE ~ Title
+  ))
 
-
+data %>% tabyl(Title, Sex) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
 
-### 4.1 Exploring predictors of Survived
-
-### 4.1.1 Finding important predictors
+### 3.2.1  Potential continuous predictors of Survived
 
 ```{r}
-# Split data into training and testing sets
-set.seed(1234)
-train_index <- sample(nrow(titanic), round(nrow(titanic)*0.7), replace = FALSE)
-train_data <- titanic[train_index, ]
-test_data <- titanic[-train_index, ]
-
-# Train random forest model
-rf_model <- randomForest(Survived ~ ., data = train_data, ntree = 500, importance = TRUE)
-
-# Compute variable importance measures
-vi <- importance(rf_model)
-
-# Create a data frame with the variable names and importance measures
-vi_df <- data.frame(variable = names(vi), importance = vi)
-
-# Sort the data frame by importance measures in descending order
-vi_df <- vi_df[order(-vi_df$importance),]
-
-# Create a barplot with ggplot
-library(ggplot2)
-ggplot(vi_df[1:10,], aes(x = reorder(variable, importance), y = importance)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  labs(x = "Variables", y = "Importance", title = "Variable Importance Plot") +
-  theme_bw() +
-  coord_flip()
-```
-
-
-
-### 4.1.2 Visualising relation of Survided with the most important variables.
-
-```{r}
-# Subset the dataset to include only the variables of interest
-set_con <- subset(data[!is.na(data$Survived),], select = c("Survived", "Age", "Fare"))
+sub_con <- subset(data[!is.na(data$Survived),], select = c("Survived", "Age", "Fare"))
 
 # Create scatter plot matrix with ggally
 ggpairs(sub_con, aes(color = Survived, alpha = 0.7),
@@ -224,6 +208,69 @@ ggpairs(sub_con, aes(color = Survived, alpha = 0.7),
 
 The median age of the survivors appears to be slightly lower than that of non-survivors, indicating that younger individuals had a higher chance of survival. On the other hand, the median fare of the surviving passengers is noticeably higher, suggesting a potential correlation between fare paid and survival rate.
 
-## 5. Data preparation for modelling
-## 6. Modelling
-## 7. Conclusion
+
+### 3.2.2 Age categories
+
+I read somewhere that priority to secure a place on lifeboats was given to "Women and children first". So Sex and Age would be likely predicting the odds.
+While the correlation between Age and Survived is not very clear, the association between age_cat and Survived is significant (p-value = 0.02). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
+
+```{r}
+data$age_cat <- cut(data$Age, breaks = c(0,18,40,60,95),
+                    label = c("under18","middle", "senior", "elder"))
+```
+
+
+```{r}
+data %>%
+  filter(!is.na(Survived)) %>%
+  tabyl(age_cat, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+
+#data %>%
+  #filter(!is.na(Survived)) %>%
+ #chisq.test(x = .$Survived, y =.$age_cat, correct = FALSE)
+
+mosaic(~ age_cat + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels = 0)
+```
+ 
+### 3.2.3 Sex
+
+
+```{r}
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Sex, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+
+#chisq.test(data$Survived, data$Sex, correct = FALSE)
+
+mosaic(~ Sex + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels=0)
+```
+
+Female passengers had a noticeably higher rate of survival when compared to male passengers( p-value < 0.001).
+
+
+```{r, warning=FALSE}
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Title, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+
+mosaic(~ Title + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels=0)
+```
+
+The title that a passenger held had an impact on their odds of survival (p-value < 0.001). In line with the previous observation, it appears that women with titles of Miss or Mrs had a higher likelihood of surviving. Additionally, it is noteworthy that passengers with titles of Master or Noble had a better chance of survival when compared to those with titles of Mr or Officer.
+
+
+## 4. Data preparation for modelling
+## 5. Modelling
+## 6. Conclusion

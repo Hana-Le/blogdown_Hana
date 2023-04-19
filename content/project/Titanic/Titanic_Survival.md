@@ -10,9 +10,9 @@ output:
 
 # 1. Introduction
 
-The Titanic sank in 1912 after hitting an iceberg. Many people thought it was unsinkable, but it wasn't. Sadly, most of the passengers and crew didn't have a lifeboat, and many people died. Some groups had a better chance of surviving than others.
+This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck, to  answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc). 
 
-This project uses data from the Kaggle competition ["Titanic - Machine Learning from Disater"](https://www.kaggle.com/competitions/titanic/overview). The goal of this project is to use machine learning to build a predictive model that predicts which passengers survived the Titanic shipwreck answers the question: “what sorts of people were more likely to survive?” using passenger data (ie. name, age, gender, socio-economic class, etc) and evaluate the performance of the model using the test data. It looks like a very simple project but I aim to learn more about exploratory data analysis thru analysing the dataset.
+It seems like a straightforward project that is quite popular among beginners in data science :smiley:, but my objective is to gain more experience working with this type of dataset.
 
 # 2. Overview the data
 ## 2.1 Loading packages and reading the data
@@ -20,7 +20,7 @@ This project uses data from the Kaggle competition ["Titanic - Machine Learning 
 
 ```r
 # Loading R packages
-packages <- c("tidyverse","Amelia", "psych","DT", "htmlTable","mice","ranger", "janitor", "randomForest") 
+packages <- c("tidyverse","Amelia", "psych","DT","mice","ranger", "janitor","vcd","kableExtra", "stringr","ggplot2", "GGally", "randomForest") 
 sapply(packages, require, character = TRUE)
 ```
 
@@ -100,7 +100,7 @@ It seems from the data structure that missing values are not only represented as
 
 
 ```r
-sort(colSums(is.na(data)| data == ""), decreasing = T)
+sort(colSums(is.na(data)| data == ""), decreasing = T) 
 ```
 
 ```
@@ -114,8 +114,8 @@ Out of a total of 1309 records, Cabin is the variable with the highest number of
 
 
 ```r
+# Visualization of missing values 
 data[data ==""] <- NA
-
 missmap(data[,colnames(data) != "Survived"])
 ```
 
@@ -123,23 +123,6 @@ missmap(data[,colnames(data) != "Survived"])
 
 
 ## 2.4 Imputing missing data
-
-
-
-```r
-# I was wondering if there is any case where Cabin is exclusively for the 1st class passengers?
-# Have look on Cabin
-
-# data %>% tabyl(Pclass, Cabin)
-
-# It appears that passengers who had cabin information were predominantly in the 1st class. 
-# However, there were still 67 1st-class passengers who had missing values for the cabin,
-# making it difficult to draw conclusions. 
-# I decided to drop the cabin variable from the analysis
-
-data$Cabin <- NULL
-```
-
 
 
 
@@ -152,45 +135,120 @@ data[is.na(data$Embarked), ]
 ##     PassengerId Survived Pclass                                      Name
 ## 62           62        1      1                       Icard, Miss. Amelie
 ## 830         830        1      1 Stone, Mrs. George Nelson (Martha Evelyn)
-##        Sex Age SibSp Parch Ticket Fare Embarked
-## 62  female  38     0     0 113572   80     <NA>
-## 830 female  62     0     0 113572   80     <NA>
+##        Sex Age SibSp Parch Ticket Fare Cabin Embarked
+## 62  female  38     0     0 113572   80   B28     <NA>
+## 830 female  62     0     0 113572   80   B28     <NA>
 ```
 
 ```r
-data %>% tabyl(Embarked, Pclass)
+data %>% tabyl(Embarked, Pclass) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
 
-```
-##  Embarked   1   2   3
-##             0   0   0
-##         C 141  28 101
-##         Q   3   7 113
-##         S 177 242 495
-##      <NA>   2   0   0
-```
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Embarked </th>
+   <th style="text-align:right;"> 1 </th>
+   <th style="text-align:right;"> 2 </th>
+   <th style="text-align:right;"> 3 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;">  </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> C </td>
+   <td style="text-align:right;"> 141 </td>
+   <td style="text-align:right;"> 28 </td>
+   <td style="text-align:right;"> 101 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Q </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 113 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> S </td>
+   <td style="text-align:right;"> 177 </td>
+   <td style="text-align:right;"> 242 </td>
+   <td style="text-align:right;"> 495 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
 #names(sort(table(data$Embarked), decreasing = T))[1]
-# It seems likely the 2 passengers who had Embarked info missing embarked from S = Southampton.
+# These 2 passengers were in 1st class, in the same Cabin
+# It seems likely the 2 passengers embarked from S = Southampton.
 data$Embarked[is.na(data$Embarked)] <- "S"
 ```
 
 
 ```r
-#Imputing the missing value for Fare
+# Imputing the missing value for Fare
 data[is.na(data$Fare),]
 ```
 
 ```
 ##      PassengerId Survived Pclass               Name  Sex  Age SibSp Parch
 ## 1044        1044     <NA>      3 Storey, Mr. Thomas male 60.5     0     0
-##      Ticket Fare Embarked
-## 1044   3701   NA        S
+##      Ticket Fare Cabin Embarked
+## 1044   3701   NA  <NA>        S
 ```
 
 ```r
-data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarded == "S", na.rm = T)
+## the passenger was in Pclass 3 and embarked from "S"
+data$Fare[is.na(data$Fare)] <- median(data$Fare, data$Pclass == 3 & data$Embarked == "S", na.rm = T)
+```
+
+
+
+```r
+# I was wondering if there is any case where Cabin is exclusively for the 1st class passengers?
+# Have look on Cabin
+
+#data %>% tabyl(Pclass, Cabin)
+```
+
+It appears that passengers who had cabin information were predominantly in the 1st class.  These cabins mostly contain letters from A to E. 
+
+According to ['Wikipedia'](https://en.wikipedia.org/wiki/First-class_facilities_of_the_Titanic) and ['Titanic fandom'](https://titanic.fandom.com/wiki/Third_Class_cabins), first-class facilities and accommodation was located on the upper decks within the superstructure of the Titanic, which  occupied almost the entirety of B and C Decks, but also large sections forward on A, D and E-Decks. While the third-class cabins were  located on F Deck, with a few on the forward G Deck. Rather than numbered by the deck they were on, these cabins were numbered separately. This area was the first to flood during the sinking, because of their location in the lowest decks in the bow. It is possible that the location of the accommodation would have been affecting the chance of survival of passengers on the ship.
+
+It is quite obvious to see significant association between Pclass with Cabin labeled from A to E by using Chi-Squared test in this case.
+
+
+```r
+data$Cabin2 <- ifelse(is.na(data$Cabin), 0, 1)
+Pclass_Cabin2 <- table(data$Pclass, data$Cabin2)
+chisq.test(Pclass_Cabin2)
+```
+
+```
+## 
+## 	Pearson's Chi-squared test
+## 
+## data:  Pclass_Cabin2
+## X-squared = 794.43, df = 2, p-value < 2.2e-16
+```
+ So I decided to drop the cabin variable from the analysis
+
+
+
+```r
+data$Cabin <- NULL
 ```
 
 
@@ -251,8 +309,8 @@ colSums(is.na(data[,colnames(data) != "Survived"]))
 ```
 ## PassengerId      Pclass        Name         Sex         Age       SibSp 
 ##           0           0           0           0           0           0 
-##       Parch      Ticket        Fare    Embarked 
-##           0           0           0           0
+##       Parch      Ticket        Fare    Embarked      Cabin2 
+##           0           0           0           0           0
 ```
 
 ## 2.5 Descriptive statistics
@@ -266,63 +324,409 @@ data_table %>% round(digits = 3) %>%
 ```
 
 ```{=html}
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-916230691fa7e23d1656" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-916230691fa7e23d1656">{"x":{"filter":"none","vertical":false,"data":[["PassengerId","Survived*","Pclass*","Name*","Sex*","Age","SibSp","Parch","Ticket*","Fare","Embarked*"],[1,2,3,4,5,6,7,8,9,10,11],[1309,891,1309,1309,1309,1309,1309,1309,1309,1309,1309],[655,1.384,2.295,653.694,1.644,29.327,0.499,0.385,464.604,33.281,3.494],[378.02,0.487,0.838,377.31,0.479,13.823,1.042,0.866,278.039,51.741,0.814],[655,1,3,653,2,27,0,0,460,14.454,4],[655,1.355,2.368,653.619,1.68,28.729,0.275,0.175,465.234,21.568,3.616],[484.81,0,0,484.81,0,11.861,0,0,379.546,10.236,0],[1,1,1,1,1,0.17,0,0,1,0,2],[1309,2,3,1307,2,80,8,9,929,512.329,4],[1308,1,2,1306,1,79.83,8,9,928,512.329,2],[0,0.477,-0.597,0.002,-0.601,0.486,3.835,3.661,-0.009,4.36,-1.125],[-1.203,-1.775,-1.317,-1.202,-1.64,0.343,19.927,21.417,-1.328,26.896,-0.548],[10.448,0.016,0.023,10.429,0.013,0.382,0.029,0.024,7.685,1.43,0.023]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>vars<\/th>\n      <th>n<\/th>\n      <th>mean<\/th>\n      <th>sd<\/th>\n      <th>median<\/th>\n      <th>trimmed<\/th>\n      <th>mad<\/th>\n      <th>min<\/th>\n      <th>max<\/th>\n      <th>range<\/th>\n      <th>skew<\/th>\n      <th>kurtosis<\/th>\n      <th>se<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-034e48bf6bd94b912642" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-034e48bf6bd94b912642">{"x":{"filter":"none","vertical":false,"data":[["PassengerId","Survived*","Pclass*","Name*","Sex*","Age","SibSp","Parch","Ticket*","Fare","Embarked*","Cabin2"],[1,2,3,4,5,6,7,8,9,10,11,12],[1309,891,1309,1309,1309,1309,1309,1309,1309,1309,1309,1309],[655,1.384,2.295,653.694,1.644,29.396,0.499,0.385,464.604,33.281,3.494,0.225],[378.02,0.487,0.838,377.31,0.479,13.903,1.042,0.866,278.039,51.741,0.814,0.418],[655,1,3,653,2,27,0,0,460,14.454,4,0],[655,1.355,2.368,653.619,1.68,28.809,0.275,0.175,465.234,21.568,3.616,0.157],[484.81,0,0,484.81,0,11.861,0,0,379.546,10.236,0,0],[1,1,1,1,1,0.17,0,0,1,0,2,0],[1309,2,3,1307,2,80,8,9,929,512.329,4,1],[1308,1,2,1306,1,79.83,8,9,928,512.329,2,1],[0,0.477,-0.597,0.002,-0.601,0.472,3.835,3.661,-0.009,4.36,-1.125,1.313],[-1.203,-1.775,-1.317,-1.202,-1.64,0.28,19.927,21.417,-1.328,26.896,-0.548,-0.276],[10.448,0.016,0.023,10.429,0.013,0.384,0.029,0.024,7.685,1.43,0.023,0.012]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>vars<\/th>\n      <th>n<\/th>\n      <th>mean<\/th>\n      <th>sd<\/th>\n      <th>median<\/th>\n      <th>trimmed<\/th>\n      <th>mad<\/th>\n      <th>min<\/th>\n      <th>max<\/th>\n      <th>range<\/th>\n      <th>skew<\/th>\n      <th>kurtosis<\/th>\n      <th>se<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 ```
 
+## 3. Exploring variables
+### 3.1 Survived
 
-## 3. Feature Engineering
-Passenger titles provide some information about their social status, gender, and possibly age. These titles were included in the name of each passenger so we can extract them out.
+
+```r
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Survived) %>%
+  adorn_pct_formatting() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
+```
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Survived </th>
+   <th style="text-align:right;"> n </th>
+   <th style="text-align:left;"> percent </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 0 </td>
+   <td style="text-align:right;"> 549 </td>
+   <td style="text-align:left;"> 61.6% </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:right;"> 342 </td>
+   <td style="text-align:left;"> 38.4% </td>
+  </tr>
+</tbody>
+</table>
+Out of the 891 passengers in the training set, 342 survived, which corresponds to a survival rate of approximately 38.4%.
+
+### 3.2 Exploring potential predcitors of Survived
+
+Passenger titles provide some information about their social status, gender, and possibly age which could be strong predictors for survival. These titles were included in the name of each passenger so we can extract them out.
 
 
 ```r
 data$Title <- sapply(data$Name, function(x) strsplit(x, split = '[,.]')[[1]][[2]])
 data$Title <- sub(' ', '', data$Title)
-data %>% tabyl(Title, Sex) 
+data %>% tabyl(Title, Sex) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
 
-```
-##         Title female male
-##          Capt      0    1
-##           Col      0    4
-##           Don      0    1
-##          Dona      1    0
-##            Dr      1    7
-##      Jonkheer      0    1
-##          Lady      1    0
-##         Major      0    2
-##        Master      0   61
-##          Miss    260    0
-##          Mlle      2    0
-##           Mme      1    0
-##            Mr      0  757
-##           Mrs    197    0
-##            Ms      2    0
-##           Rev      0    8
-##           Sir      0    1
-##  the Countess      1    0
-```
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Title </th>
+   <th style="text-align:right;"> female </th>
+   <th style="text-align:right;"> male </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Capt </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Col </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Don </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dona </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dr </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 7 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Jonkheer </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lady </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Major </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Master </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 61 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Miss </td>
+   <td style="text-align:right;"> 260 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mlle </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mme </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mr </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 757 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mrs </td>
+   <td style="text-align:right;"> 197 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ms </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Rev </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 8 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sir </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> the Countess </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
 
 
 ```r
-data$Title[data$Title %in% c("Mlle", "Ms")] <- "Miss"
-data$Title[data$Title == "Mme"] <- "Mrs"
-data$Title[data$Title %in% c("the Countess", "Dona", "Lady", "Jonkheer")] <- "Noble"
-data$Title[data$Title %in% c("Capt","Col", "Dr", "Rev", "Don", "Major", "Sir")] <- "Officer"
-data %>% tabyl(Title, Sex) 
+data <- data %>% 
+  mutate(Title = case_when(
+    Title %in% c("Mlle", "Ms") ~ "Miss",
+    Title == "Mme" ~ "Mrs",
+    Title %in% c("the Countess", "Dona", "Lady", "Jonkheer") ~ "Noble",
+    Title %in% c("Capt","Col", "Dr", "Rev", "Don", "Major", "Sir") ~ "Officer",
+    TRUE ~ Title
+  ))
+
+data %>% tabyl(Title, Sex) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE)
 ```
 
-```
-##    Title female male
-##   Master      0   61
-##     Miss    264    0
-##       Mr      0  757
-##      Mrs    198    0
-##    Noble      3    1
-##  Officer      1   24
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Title </th>
+   <th style="text-align:right;"> female </th>
+   <th style="text-align:right;"> male </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Master </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 61 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Miss </td>
+   <td style="text-align:right;"> 264 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mr </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 757 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mrs </td>
+   <td style="text-align:right;"> 198 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Noble </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Officer </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 24 </td>
+  </tr>
+</tbody>
+</table>
+
+### 3.2.1  Potential continuous predictors of Survived
+
+
+```r
+sub_con <- subset(data[!is.na(data$Survived),], select = c("Survived", "Age", "Fare"))
+
+# Create scatter plot matrix with ggally
+ggpairs(sub_con, aes(color = Survived, alpha = 0.7),
+        lower = list(combo = "count"))
 ```
 
-## 4. Exploring variables
-## 5. Data preparation for modelling
-## 6. Modelling
-## 7. Conclusion
+![](Titanic_Survival_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+The median age of the survivors appears to be slightly lower than that of non-survivors, indicating that younger individuals had a higher chance of survival. On the other hand, the median fare of the surviving passengers is noticeably higher, suggesting a potential correlation between fare paid and survival rate.
+
+
+### 3.2.2 Age categories
+
+I read somewhere that priority to secure a place on lifeboats was given to "Women and children first". So Sex and Age would be likely predicting the odds.
+While the correlation between Age and Survived is not very clear, the association between age_cat and Survived is significant (p-value = 0.02). Passengers who were under 18 had higher survived rate than other groups, whereas the elder had the lowest likelihood of surviving.
+
+
+```r
+data$age_cat <- cut(data$Age, breaks = c(0,18,40,60,95),
+                    label = c("under18","middle", "senior", "elder"))
+```
+
+
+
+```r
+data %>%
+  filter(!is.na(Survived)) %>%
+  tabyl(age_cat, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+```
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> age_cat </th>
+   <th style="text-align:left;"> 0 </th>
+   <th style="text-align:left;"> 1 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> under18 </td>
+   <td style="text-align:left;"> 93 (54%) </td>
+   <td style="text-align:left;"> 80 (46%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> middle </td>
+   <td style="text-align:left;"> 343 (63%) </td>
+   <td style="text-align:left;"> 199 (37%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> senior </td>
+   <td style="text-align:left;"> 94 (62%) </td>
+   <td style="text-align:left;"> 57 (38%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> elder </td>
+   <td style="text-align:left;"> 19 (76%) </td>
+   <td style="text-align:left;"> 6 (24%) </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#data %>%
+  #filter(!is.na(Survived)) %>%
+ #chisq.test(x = .$Survived, y =.$age_cat, correct = FALSE)
+
+mosaic(~ age_cat + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels = 0)
+```
+
+![](Titanic_Survival_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+ 
+### 3.2.3 Sex
+
+
+
+```r
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Sex, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+```
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Sex </th>
+   <th style="text-align:left;"> 0 </th>
+   <th style="text-align:left;"> 1 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> female </td>
+   <td style="text-align:left;"> 81 (26%) </td>
+   <td style="text-align:left;"> 233 (74%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> male </td>
+   <td style="text-align:left;"> 468 (81%) </td>
+   <td style="text-align:left;"> 109 (19%) </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#chisq.test(data$Survived, data$Sex, correct = FALSE)
+
+mosaic(~ Sex + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels=0)
+```
+
+![](Titanic_Survival_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+
+Female passengers had a noticeably higher rate of survival when compared to male passengers( p-value < 0.001).
+
+
+
+```r
+data %>% 
+  filter(!is.na(Survived)) %>%
+  tabyl(Title, Survived) %>%
+  adorn_percentages("row") %>% 
+  adorn_pct_formatting(rounding = "half up", digits = 0) %>%
+  adorn_ns(position = "front") %>%
+  knitr::kable()
+```
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Title </th>
+   <th style="text-align:left;"> 0 </th>
+   <th style="text-align:left;"> 1 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Master </td>
+   <td style="text-align:left;"> 17 (43%) </td>
+   <td style="text-align:left;"> 23 (58%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Miss </td>
+   <td style="text-align:left;"> 55 (30%) </td>
+   <td style="text-align:left;"> 130 (70%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mr </td>
+   <td style="text-align:left;"> 436 (84%) </td>
+   <td style="text-align:left;"> 81 (16%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mrs </td>
+   <td style="text-align:left;"> 26 (21%) </td>
+   <td style="text-align:left;"> 100 (79%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Noble </td>
+   <td style="text-align:left;"> 1 (33%) </td>
+   <td style="text-align:left;"> 2 (67%) </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Officer </td>
+   <td style="text-align:left;"> 14 (70%) </td>
+   <td style="text-align:left;"> 6 (30%) </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+mosaic(~ Title + Survived, data = data[!is.na(data$Survived),], gp = shading_max, rot_labels=0)
+```
+
+![](Titanic_Survival_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
+
+The title that a passenger held had an impact on their odds of survival (p-value < 0.001). In line with the previous observation, it appears that women with titles of Miss or Mrs had a higher likelihood of surviving. Additionally, it is noteworthy that passengers with titles of Master or Noble had a better chance of survival when compared to those with titles of Mr or Officer.
+
+
+## 4. Data preparation for modelling
+## 5. Modelling
+## 6. Conclusion
