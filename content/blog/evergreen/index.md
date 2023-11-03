@@ -67,7 +67,7 @@ When you’re happy with the content of your site, it’s time to publish it! To
 ```r
 git add .
 git commit -m "Your commit message"
-git push origin master
+git push origin master/main
 
 ```
 
