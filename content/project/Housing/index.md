@@ -1064,5 +1064,7 @@ write.csv(pred_df, file = "predicted_sale_prices.csv", row.names = FALSE)
 
 ## 7. Conclusion
 
-My submission for the Kaggle competition using XGBoost achieved a score of 0.13097, which I was satisfied with for my first attempt, even it is way to far to reach top 5% (RMSE around 0.11) :smiley:. However, I learned that there are other methods that could be used to improve the score, such as trying different feature engineering techniques and experimenting with model parameters or other algorithms like Lasso or glmnet. Overall, I have enjoyed working on this project as it provided me with some experience and insights into data wrangling, along with a valuable introduction to using XGBoost for machine learning projects. This experience has motivated me to continue exploring different methods to improve my performance.
+My submission for the Kaggle competition using XGBoost achieved a score of 0.13097, and I'm satisfied with it for my first attempt, even though it's far from the top 5% (RMSE around 0.11) :smiley:. While I could have tried different feature engineering techniques and experimented with model parameters or other algorithms like Lasso or glmnet to improve the score, it's something I'll consider for next time.
+
+Overall, I have enjoyed working on this project. This experience has motivated me to continue exploring different methods of machine learning.
 
