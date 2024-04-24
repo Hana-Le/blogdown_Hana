@@ -122,10 +122,10 @@ enableEmoji = true
     url = "/project/"
     weight = 3
   [[menu.header]]
-    name = "CV"
-    title = "CV"
-    url = "/files/HL_CV.pdf"
-    weight = 4
+   # name = "CV"
+    #title = "CV"
+    #url = "/files/HL_CV.pdf"
+    #weight = 4
 
     
   # Configure footer  
